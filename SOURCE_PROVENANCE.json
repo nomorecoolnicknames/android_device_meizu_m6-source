@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "source_commit": "02c5ffd1547b9241b93b7e6c004656ec949071a2",
+  "device": "meizu_m6",
+  "android_version": 13,
+  "source_export_date": "2026-09-29",
+  "history": "Audited source snapshot; original private history preserved without rewriting.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "source_path": ".gitignore",
+      "sha256": "28614a4087e043c2205ce5524b028272eccda0a690cc31a5630c6f55a671170e",
+      "bytes": 376,
+      "published_sha256": "28614a4087e043c2205ce5524b028272eccda0a690cc31a5630c6f55a671170e"
+    },
+    {
+      "path": "Android.bp",
+      "source_path": "Android.bp",
+      "sha256": "da72e09ba3de58ce2a65d59c1fde21c3e7428f0f8bd48ee09e1151ea81719f04",
+      "bytes": 7460,
+      "published_sha256": "da72e09ba3de58ce2a65d59c1fde21c3e7428f0f8bd48ee09e1151ea81719f04"
+    },
+    {
+      "path": "AndroidProducts.mk",
+      "source_path": "AndroidProducts.mk",
+      "sha256": "78e11f8ae9d942c83c5e46ed187f2edb6d4269cf7a9d689c6fda2395508094e0",
+      "bytes": 233,
+      "published_sha256": "78e11f8ae9d942c83c5e46ed187f2edb6d4269cf7a9d689c6fda2395508094e0"
+    },
+    {
+      "path": "BoardConfig.mk",
+      "source_path": "BoardConfig.mk",
+      "sha256": "cfd33a19062882de240aab9435b4d0d1cc973c7877055d223107f88b22bd42f4",
+      "bytes": 31047,
+      "published_sha256": "c9ef81a63a2f7ce0163a98ec51b56a83bc89c02191f11b070b2a7db23273033f"
+    },
+    {
+      "path": "device.mk",
+      "source_path": "device.mk",
+      "sha256": "228c1159a2a8629368d44ed06886f9f518f22b0db18801cf56f7597ce5e2fe8d",
+      "bytes": 17961,
+      "published_sha256": "4adb14cf5c113a8a4ffda0e3f05f99c08c4c756e10eea11ca9c2eb0ee0e926ce"
+    },
+    {
+      "path": "lineage_meizu_m6.mk",
+      "source_path": "lineage_meizu_m6.mk",
+      "sha256": "0c8854f3562919e2e9bc71909c501ea0c175d3ff0bd6aa0cda956cacb2c36e53",
+      "bytes": 5891,
+      "published_sha256": "a4207dc169590f0d362f83956707cfa31bf31295765034787726c7a28f00aafe"
+    },
+    {
+      "path": "manifest.xml",
+      "source_path": "manifest.xml",
+      "sha256": "a9e2352e7155dbd8ce2d26f02db55dbac336f50fbb34ffd43b1322931933307a",
+      "bytes": 6419,
+      "published_sha256": "a9e2352e7155dbd8ce2d26f02db55dbac336f50fbb34ffd43b1322931933307a"
+    },
+    {
+      "path": "overlay/frameworks/base/core/res/res/values/config.xml",
+      "source_path": "overlay/frameworks/base/core/res/res/values/config.xml",
+      "sha256": "31965dc1cc91e11c6bc750c5ea31c2e25749cdad4b686d3b7d94f0253df478d1",
+      "bytes": 1550,
+      "published_sha256": "31965dc1cc91e11c6bc750c5ea31c2e25749cdad4b686d3b7d94f0253df478d1"
+    },
+    {
+      "path": "proprietary-files.txt",
+      "source_path": "proprietary-files.txt",
+      "sha256": "47ab333d8ca3fdbf4e22154684bcbe9fb6c510fbedc5542a88f0b2634a233fc1",
+      "bytes": 31722,
+      "published_sha256": "052f3c55168c342dfa9877a852fd61f5cb8a7327f7a11cdef5b605d9ea0d38cb"
+    },
+    {
+      "path": "rootdir/etc/fstab.mt6755",
+      "source_path": "rootdir/etc/fstab.mt6755",
+      "sha256": "63a9da5385d174c474a82952a6ad871c9811d4e7f890f51597c31a29cebf7786",
+      "bytes": 9461,
+      "published_sha256": "afbac4ed54e106d39ddc3b0a4c4f52205ef708148bca746f34492c25b1f26d71"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.connectivity.rc",
+      "source_path": "rootdir/etc/init/hw/init.meizu_m6.connectivity.rc",
+      "sha256": "c4ea75de01f4d5a53d3367581a469ff5d89064ac401bd5ba6f79e07cfeb91702",
+      "bytes": 3334,
+      "published_sha256": "c4ea75de01f4d5a53d3367581a469ff5d89064ac401bd5ba6f79e07cfeb91702"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.modem.rc",
+      "source_path": "rootdir/etc/init/hw/init.meizu_m6.modem.rc",
+      "sha256": "c3b2f467e705992272c88d43f77d6452039b314f31ff40692bf6d56c0476d202",
+      "bytes": 11740,
+      "published_sha256": "c3b2f467e705992272c88d43f77d6452039b314f31ff40692bf6d56c0476d202"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.nvram.rc",
+      "source_path": "rootdir/etc/init/hw/init.meizu_m6.nvram.rc",
+      "sha256": "b2580d75e3464f0fa5a23925816580027f144c444591fc566313a87fbd95b8af",
+      "bytes": 3813,
+      "published_sha256": "a9f6cb2f2659ca0eab0bb8f31d6157bf75647aa71c52ea8408c9776b52358f6c"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.tee.rc",
+      "source_path": "rootdir/etc/init/hw/init.meizu_m6.tee.rc",
+      "sha256": "b5007bce7991d90ed7cf5571e715b4fd55c50d351357a7025e599ccdfa0d463d",
+      "bytes": 3259,
+      "published_sha256": "9b63221a4a1433a0fceee6b85c4507381d5daf88edecd7302b042a05e908b162"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.thermal.rc",
+      "source_path": "rootdir/etc/init/hw/init.meizu_m6.thermal.rc",
+      "sha256": "275600bf0e505717b855418b2b119cddbccd08968796f7a61f51232b2b159a0b",
+      "bytes": 1899,
+      "published_sha256": "275600bf0e505717b855418b2b119cddbccd08968796f7a61f51232b2b159a0b"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.mt6755.rc",
+      "source_path": "rootdir/etc/init/hw/init.mt6755.rc",
+      "sha256": "69537ff14967a0914a60b47bf467f651b739fa8438ed679b2d1ca5db09cd9f9f",
+      "bytes": 11516,
+      "published_sha256": "9cfd19ed440635aee6eb244282728ea76d7d6737b132d2ec018e207c2c4f8ab3"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.mt6755.usb.rc",
+      "source_path": "rootdir/etc/init/hw/init.mt6755.usb.rc",
+      "sha256": "2089a539c5222ea8bf96bc72d2bcb2d4c598e0eab6480ca0f8868e84bd7a3bc7",
+      "bytes": 6275,
+      "published_sha256": "2089a539c5222ea8bf96bc72d2bcb2d4c598e0eab6480ca0f8868e84bd7a3bc7"
+    },
+    {
+      "path": "rootdir/etc/init/init.meizu_m6.sensors.rc",
+      "source_path": "rootdir/etc/init/init.meizu_m6.sensors.rc",
+      "sha256": "5e96ff00d3e52376613f236e39e7f574b29bd9e777085abff62a0ad9d539bffa",
+      "bytes": 5919,
+      "published_sha256": "5e96ff00d3e52376613f236e39e7f574b29bd9e777085abff62a0ad9d539bffa"
+    },
+    {
+      "path": "rootdir/etc/init/init.meizu_m6.wifi.rc",
+      "source_path": "rootdir/etc/init/init.meizu_m6.wifi.rc",
+      "sha256": "f53df7d3e734efa5c5181601f742ec06217207838646311912198d12ffeebc52",
+      "bytes": 2013,
+      "published_sha256": "f53df7d3e734efa5c5181601f742ec06217207838646311912198d12ffeebc52"
+    },
+    {
+      "path": "rootdir/etc/ueventd.mt6755.rc",
+      "source_path": "rootdir/etc/ueventd.mt6755.rc",
+      "sha256": "d646bb94def2e911dc3bbd744a7f4c96c7d5ed1b36256d2c0116ff4563b26fe5",
+      "bytes": 16762,
+      "published_sha256": "f1159eaed9db353f4cf23a4227daf7f0a32e175fa0297bdb7431355841cffeb5"
+    },
+    {
+      "path": "sepolicy/vendor/file.te",
+      "source_path": "sepolicy/vendor/file.te",
+      "sha256": "150942727fc0ded81ab2d77711718eca321d7c50c1d82c3d9fb5690c0ee10df2",
+      "bytes": 776,
+      "published_sha256": "150942727fc0ded81ab2d77711718eca321d7c50c1d82c3d9fb5690c0ee10df2"
+    },
+    {
+      "path": "sepolicy/vendor/file_contexts",
+      "source_path": "sepolicy/vendor/file_contexts",
+      "sha256": "0053c910a10e7136620e9afad52bc203acdd9731a5ff07ef3a5b9227d49acc0d",
+      "bytes": 490,
+      "published_sha256": "0053c910a10e7136620e9afad52bc203acdd9731a5ff07ef3a5b9227d49acc0d"
+    },
+    {
+      "path": "shims/audioutils.cpp",
+      "source_path": "shims/audioutils.cpp",
+      "sha256": "9440c9955ffedf40667ce678b38a6975e2100b764cbb7425d39e25da3ab3e833",
+      "bytes": 4006,
+      "published_sha256": "9440c9955ffedf40667ce678b38a6975e2100b764cbb7425d39e25da3ab3e833"
+    },
+    {
+      "path": "shims/bytepatch.txt",
+      "source_path": "shims/bytepatch.txt",
+      "sha256": "6285614158246208b34b4886e3902452442949cb83ffdfc50adeb7eab025d8a4",
+      "bytes": 863,
+      "published_sha256": "6285614158246208b34b4886e3902452442949cb83ffdfc50adeb7eab025d8a4"
+    },
+    {
+      "path": "shims/fs_mgr.c",
+      "source_path": "shims/fs_mgr.c",
+      "sha256": "3d24f8c4e9416e1b0563c907f02bf0a5c5ce3578aee6c70c0157babb470a2942",
+      "bytes": 4737,
+      "published_sha256": "3d24f8c4e9416e1b0563c907f02bf0a5c5ce3578aee6c70c0157babb470a2942"
+    },
+    {
+      "path": "shims/graphicbuffer.cpp",
+      "source_path": "shims/graphicbuffer.cpp",
+      "sha256": "76285b27791ad89039475963a246b9b0ac063778688128a0801489502bcbe128",
+      "bytes": 2926,
+      "published_sha256": "76285b27791ad89039475963a246b9b0ac063778688128a0801489502bcbe128"
+    },
+    {
+      "path": "shims/gui.cpp",
+      "source_path": "shims/gui.cpp",
+      "sha256": "f468848825632e215b9ca75f87684922159081a177da6fd1586a12889fe4800c",
+      "bytes": 9625,
+      "published_sha256": "f468848825632e215b9ca75f87684922159081a177da6fd1586a12889fe4800c"
+    },
+    {
+      "path": "shims/m95_RegionHelper.h",
+      "source_path": "shims/m95_RegionHelper.h",
+      "sha256": "0db0f699a5a635392b13a6df8e56159c342362ec1a0e56e1adb9da1b85cde530",
+      "bytes": 9323,
+      "published_sha256": "0db0f699a5a635392b13a6df8e56159c342362ec1a0e56e1adb9da1b85cde530"
+    },
+    {
+      "path": "shims/net.c",
+      "source_path": "shims/net.c",
+      "sha256": "c33d483768a0da7cec3fbf9a57cbb479e8deeb7a7b777b88aebe54220494a67f",
+      "bytes": 4514,
+      "published_sha256": "c33d483768a0da7cec3fbf9a57cbb479e8deeb7a7b777b88aebe54220494a67f"
+    },
+    {
+      "path": "shims/netd_client.c",
+      "source_path": "shims/netd_client.c",
+      "sha256": "b6295ec5788339e40d76017d8b3aa523d49b5d031cead1ee2c5a3e30813cc3f0",
+      "bytes": 4064,
+      "published_sha256": "b6295ec5788339e40d76017d8b3aa523d49b5d031cead1ee2c5a3e30813cc3f0"
+    },
+    {
+      "path": "shims/power.cpp",
+      "source_path": "shims/power.cpp",
+      "sha256": "a2dd6f9ba619c9f7ebe19e5b0adfbbaa78a87d5bf4c9344b9fff08f3d071d141",
+      "bytes": 1111,
+      "published_sha256": "a2dd6f9ba619c9f7ebe19e5b0adfbbaa78a87d5bf4c9344b9fff08f3d071d141"
+    },
+    {
+      "path": "shims/propertymap.cpp",
+      "source_path": "shims/propertymap.cpp",
+      "sha256": "ed1d6a972d9a098db941317addaa9404da330a410daa8bd97748e3cdf92e0759",
+      "bytes": 2871,
+      "published_sha256": "ed1d6a972d9a098db941317addaa9404da330a410daa8bd97748e3cdf92e0759"
+    },
+    {
+      "path": "shims/region.cpp",
+      "source_path": "shims/region.cpp",
+      "sha256": "62d3f5969511acb06eecfcc49cd21d6b3e639c9827821634b4430ce8a4c57096",
+      "bytes": 13306,
+      "published_sha256": "62d3f5969511acb06eecfcc49cd21d6b3e639c9827821634b4430ce8a4c57096"
+    },
+    {
+      "path": "shims/sf.cpp",
+      "source_path": "shims/sf.cpp",
+      "sha256": "bc16367d943b1927d34920f83587bdb9eee2a325a986da37abf54da91a11b8cc",
+      "bytes": 6431,
+      "published_sha256": "bc16367d943b1927d34920f83587bdb9eee2a325a986da37abf54da91a11b8cc"
+    },
+    {
+      "path": "shims/ssl.c",
+      "source_path": "shims/ssl.c",
+      "sha256": "751a40a2856a207109be64568a226241482874bf9cf39c48cafdcdca75e5b5f1",
+      "bytes": 976,
+      "published_sha256": "751a40a2856a207109be64568a226241482874bf9cf39c48cafdcdca75e5b5f1"
+    },
+    {
+      "path": "shims/stub.c",
+      "source_path": "shims/stub.c",
+      "sha256": "70af5164900816d78221e3b0111f043fb9f67b26457ffe8ffffbce74158d9220",
+      "bytes": 260,
+      "published_sha256": "70af5164900816d78221e3b0111f043fb9f67b26457ffe8ffffbce74158d9220"
+    },
+    {
+      "path": "shims/ui.cpp",
+      "source_path": "shims/ui.cpp",
+      "sha256": "888d20455dd9c9340de9245140b1c9657bec39a1b36dccc29614923c12898048",
+      "bytes": 4252,
+      "published_sha256": "888d20455dd9c9340de9245140b1c9657bec39a1b36dccc29614923c12898048"
+    },
+    {
+      "path": "shims/utils.cpp",
+      "source_path": "shims/utils.cpp",
+      "sha256": "b1a4e9ee8f68edb194c6592c800ca910f03009a06f2a8c79b61fe7410aeb5b1d",
+      "bytes": 4702,
+      "published_sha256": "b1a4e9ee8f68edb194c6592c800ca910f03009a06f2a8c79b61fe7410aeb5b1d"
+    },
+    {
+      "path": "shims/wiring.txt",
+      "source_path": "shims/wiring.txt",
+      "sha256": "9f473d5e9262b79c46d0f1050c0b96862512071635d93c0c86fb49fdfef7191f",
+      "bytes": 7867,
+      "published_sha256": "9f473d5e9262b79c46d0f1050c0b96862512071635d93c0c86fb49fdfef7191f"
+    },
+    {
+      "path": "system.prop",
+      "source_path": "system.prop",
+      "sha256": "660b157bd25676a2d31baae2516d579ddcced25b5586ddff2f254d8f69e8700c",
+      "bytes": 1723,
+      "published_sha256": "660b157bd25676a2d31baae2516d579ddcced25b5586ddff2f254d8f69e8700c"
+    },
+    {
+      "path": "vendor-blobs.mk",
+      "source_path": "vendor-blobs.mk",
+      "sha256": "ec9f07d9f70451af59d83c78b1649d91bfe71ce3161e4c7efd4c4ecb76662b8c",
+      "bytes": 84885,
+      "published_sha256": "ec9f07d9f70451af59d83c78b1649d91bfe71ce3161e4c7efd4c4ecb76662b8c"
+    },
+    {
+      "path": "vendor.prop",
+      "source_path": "vendor.prop",
+      "sha256": "ae04d1dd603410cc4a3cad6294721bb72f9a5935c884f669a1d92b5ea970fb67",
+      "bytes": 4805,
+      "published_sha256": "f2bba6c529a06423b34d9d98b112809e1d68ed0848f97db622c2bc959343d03f"
+    },
+    {
+      "path": "wifi/p2p_supplicant.conf",
+      "source_path": "wifi/p2p_supplicant.conf",
+      "sha256": "d7749191e1d9a1e576f64305e7015f9cd63b23cd76fa7ce6878cb53ac5daaa3c",
+      "bytes": 356,
+      "published_sha256": "d7749191e1d9a1e576f64305e7015f9cd63b23cd76fa7ce6878cb53ac5daaa3c"
+    },
+    {
+      "path": "wifi/wpa_supplicant.conf",
+      "source_path": "wifi/wpa_supplicant.conf",
+      "sha256": "28fe8d5aa0e5511ece012e14634542bdfae8a0c73ae339b048b23d62dead3e5e",
+      "bytes": 807,
+      "published_sha256": "69556fe2eec03c88a4217e4bfc0420a31a0b32e5ce4b6ba55ff2b014aaab3866"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "BRINGUP_STATE.md",
+      "reason": "private operational notes/tooling"
+    },
+    {
+      "path": "prebuilt/Image.gz-dtb",
+      "reason": "binary/prebuilt/compiled input excluded",
+      "sha256": "cbe24adeb55bf30a861069325f047c4df7229e082f739deaa4edab3ba68abf47",
+      "bytes": 7787096
+    }
+  ],
+  "redactions": [
+    {
+      "path": "BoardConfig.mk",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "cfd33a19062882de240aab9435b4d0d1cc973c7877055d223107f88b22bd42f4"
+    },
+    {
+      "path": "device.mk",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "228c1159a2a8629368d44ed06886f9f518f22b0db18801cf56f7597ce5e2fe8d"
+    },
+    {
+      "path": "lineage_meizu_m6.mk",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "0c8854f3562919e2e9bc71909c501ea0c175d3ff0bd6aa0cda956cacb2c36e53"
+    },
+    {
+      "path": "proprietary-files.txt",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "47ab333d8ca3fdbf4e22154684bcbe9fb6c510fbedc5542a88f0b2634a233fc1"
+    },
+    {
+      "path": "rootdir/etc/fstab.mt6755",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "63a9da5385d174c474a82952a6ad871c9811d4e7f890f51597c31a29cebf7786"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.nvram.rc",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "b2580d75e3464f0fa5a23925816580027f144c444591fc566313a87fbd95b8af"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.meizu_m6.tee.rc",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "b5007bce7991d90ed7cf5571e715b4fd55c50d351357a7025e599ccdfa0d463d"
+    },
+    {
+      "path": "rootdir/etc/init/hw/init.mt6755.rc",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "69537ff14967a0914a60b47bf467f651b739fa8438ed679b2d1ca5db09cd9f9f"
+    },
+    {
+      "path": "rootdir/etc/ueventd.mt6755.rc",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "d646bb94def2e911dc3bbd744a7f4c96c7d5ed1b36256d2c0116ff4563b26fe5"
+    },
+    {
+      "path": "vendor.prop",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "ae04d1dd603410cc4a3cad6294721bb72f9a5935c884f669a1d92b5ea970fb67"
+    },
+    {
+      "path": "wifi/wpa_supplicant.conf",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "28fe8d5aa0e5511ece012e14634542bdfae8a0c73ae339b048b23d62dead3e5e"
+    }
+  ],
+  "binaries_published": false,
+  "complete_rom_build": false,
+  "runtime_validation": "not established by this publication"
+}

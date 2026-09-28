@@ -1,0 +1,80 @@
+# init.meizu_m6.connectivity.rc — MT6755 CONSYS (Wi-Fi/BT/GPS/FM) and GPS
+# daemons for the Meizu M6 on Android 13.
+# Installed as /vendor/etc/init/hw/init.meizu_m6.connectivity.rc, imported by
+# init.mt6755.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+# Tags as in init.mt6755.rc.
+#
+# Chip: integrated CONSYS, mediatek.wlan.chip=CONSYS_MT6755 (live:71-wmt);
+# CONFIG_MTK_COMBO_CHIP_CONSYS_6755=y (meizu_m6_a13_defconfig:236).
+# Firmware in /vendor/firmware (vendor-blobs.mk): WMT_SOC.cfg,
+# ROMv2_lm_patch_1_{0,1}_hdr.bin, WIFI_RAM_CODE_6755, wifi_fw.cfg; AOSP
+# ueventd searches /vendor/firmware/ for request_firmware
+# (los20 system/core/rootdir/ueventd.rc:4).
+# Device-node permissions (stpwmt, wmtdetect, wmtWifi, stpbt, stpgps, gps,
+# fm, ttyMT2) are in ueventd.mt6755.rc.
+# wpa_supplicant is NOT here: the tree already defines it in
+# /vendor/etc/init/init.meizu_m6.wifi.rc (AIDL name), and init keeps only one
+# definition of a service name.
+
+on post-fs-data
+    # GPS power-control sysfs [DEV stock:init.connectivity.rc:20-24,
+    # los16:init.project.rc:100-104]
+    chown gps gps /sys/class/gpsdrv/gps/pwrctl
+    chown gps gps /sys/class/gpsdrv/gps/suspend
+    chown gps gps /sys/class/gpsdrv/gps/state
+    chown gps gps /sys/class/gpsdrv/gps/pwrsave
+    chown gps gps /sys/class/gpsdrv/gps/status
+
+    # mnld / agpsd data and socket dirs; paths are strings of blob:bin/mnld
+    # (/data/gps_mnl/*, /data/misc/gps/*, /data/agps_supl/*, /data/mpe_mnl/*).
+    # [DEV stock:init.connectivity.rc:16-18, stock:init.mt6755.rc:178-181,634]
+    mkdir /data/gps_mnl 0771 gps system
+    mkdir /data/misc/gps 0770 gps system
+    mkdir /data/agps_supl 0771 gps system
+    mkdir /data/mpe_mnl 0771 gps system
+
+##############################
+# WMT: wmt_loader probes the chip through /dev/wmtdetect and exits (sets
+# service.wcn.driver.ready); wmt_launcher stays resident and feeds the ROM
+# patches through /dev/stpwmt (blob strings). Wi-Fi, BT, GPS and FM power-on
+# all fail without the pair.
+##############################
+
+# [DEV stock:init.connectivity.rc:47-51; los16:init.project.rc:202-206]
+service wmt_loader /vendor/bin/wmt_loader
+    class core
+    user root
+    group root
+    oneshot
+
+# [DEV stock:init.connectivity.rc:53-56] Stock arguments. los16 ran the
+# same daemon as "conn_launcher" with "-m 3 -p /vendor/firmware" and noted
+# that "-n <patch>" makes it exit with usage (los16:init.project.rc:209-220);
+# stock's form is used here — INSTALL.txt H-WMT1 has the fallback.
+service wmt_launcher /vendor/bin/wmt_launcher -p /vendor/firmware/
+    class core
+    user system
+    group system
+
+##############################
+# GPS (gps.mt6750 HAL -> mnld socket). gnss@1.0-service runs as gps with
+# groups system gps radio (los20 hardware/interfaces/gnss/1.0/default/*.rc).
+##############################
+
+# [DEV stock:init.connectivity.rc:69-73]
+service mnld /vendor/bin/mnld
+    class main
+    user gps
+    group gps inet misc sdcard_rw sdcard_r media_rw system radio
+    socket mnld stream 660 gps system
+
+# AGPS/SUPL [DEV stock:init.mt6755.rc:1192-1198]
+service agpsd /vendor/bin/mtk_agpsd
+    class main
+    socket agpsd stream 660 gps system
+    socket agpsd2 stream 660 gps inet
+    socket agpsd3 stream 660 gps inet
+    user gps
+    group gps radio inet sdcard_r sdcard_rw misc system

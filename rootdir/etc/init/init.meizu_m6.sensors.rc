@@ -1,0 +1,114 @@
+# init.meizu_m6.sensors.rc — MTK hwmsen sensor stack of the Meizu M6 on
+# Android 13: sysfs control nodes, the ST480 compass daemon, and the
+# sensors@1.0 service redefined with group input.
+#
+# Installed as /vendor/etc/init/init.meizu_m6.sensors.rc — NOT in
+# /vendor/etc/init/hw and NOT imported from init.mt6755.rc: the `override`
+# below only wins if this file is parsed AFTER the AOSP
+# android.hardware.sensors@1.0-service.rc, and /vendor/etc/init is parsed in
+# sorted order ("init.meizu_m6..." > "android.hardware...") after the hw/
+# imports [CONV m95:init.m95.sensors.rc:205-211].
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet. Not needed
+# for the first screen; it exists because the wall is already known.
+# Tags as in init.mt6755.rc.
+#
+# Sensors present (meizu_m6_a13_defconfig:222-231): BMA253 accelerometer,
+# LTR578 als/ps, ST480 magnetometer (CONFIG_MTK_ST480_NEW=y), step counter;
+# no gyroscope, no barometer. Live input devices m_acc_input, m_alsps_input,
+# m_mag_input, hwmdata (live:60-input).
+#
+# Why the service override (FACT, blob:lib64/hw/sensors.mt6750.so strings):
+# the HAL reads samples from "/dev/input/event%d" (m_*_input devices), and
+# /dev/input/* is root:input 0660 (los20 system/core/rootdir/ueventd.rc). The
+# AOSP rc runs the service as system with "group system wakelock uhid
+# context_hub" — no input (los20 hardware/interfaces/sensors/1.0/default/
+# android.hardware.sensors@1.0-service.rc). m95 measured the result: sensors
+# register but never deliver an event [CONV m95:init.m95.sensors.rc:188-203].
+
+on post-fs-data
+    # hwmsen misc-device control attributes the HAL writes on activate /
+    # batch / flush. Only the sensors this body has.
+    # [DEV stock:init.mt6755.rc:283-317, 330-345; los16:init.mt6755.rc:488-495]
+    chmod 0660 /sys/class/misc/m_acc_misc/accenablenodata
+    chmod 0660 /sys/class/misc/m_acc_misc/accactive
+    chmod 0660 /sys/class/misc/m_acc_misc/accdelay
+    chmod 0660 /sys/class/misc/m_acc_misc/accbatch
+    chmod 0660 /sys/class/misc/m_acc_misc/accflush
+    chown system system /sys/class/misc/m_acc_misc/accenablenodata
+    chown system system /sys/class/misc/m_acc_misc/accactive
+    chown system system /sys/class/misc/m_acc_misc/accdelay
+    chown system system /sys/class/misc/m_acc_misc/accbatch
+    chown system system /sys/class/misc/m_acc_misc/accflush
+
+    chmod 0660 /sys/class/misc/m_mag_misc/magactive
+    chmod 0660 /sys/class/misc/m_mag_misc/magdelay
+    chmod 0660 /sys/class/misc/m_mag_misc/magbatch
+    chmod 0660 /sys/class/misc/m_mag_misc/magflush
+    chmod 0660 /sys/class/misc/m_mag_misc/magoactive
+    chmod 0660 /sys/class/misc/m_mag_misc/magodelay
+    chmod 0660 /sys/class/misc/m_mag_misc/magobatch
+    chmod 0660 /sys/class/misc/m_mag_misc/magoflush
+    chown system system /sys/class/misc/m_mag_misc/magactive
+    chown system system /sys/class/misc/m_mag_misc/magdelay
+    chown system system /sys/class/misc/m_mag_misc/magbatch
+    chown system system /sys/class/misc/m_mag_misc/magflush
+    chown system system /sys/class/misc/m_mag_misc/magoactive
+    chown system system /sys/class/misc/m_mag_misc/magodelay
+    chown system system /sys/class/misc/m_mag_misc/magobatch
+    chown system system /sys/class/misc/m_mag_misc/magoflush
+
+    chmod 0660 /sys/class/misc/m_batch_misc/batchactive
+    chmod 0660 /sys/class/misc/m_batch_misc/batchdelay
+    chmod 0660 /sys/class/misc/m_batch_misc/batchbatch
+    chmod 0660 /sys/class/misc/m_batch_misc/batchflush
+    chown system system /sys/class/misc/m_batch_misc/batchactive
+    chown system system /sys/class/misc/m_batch_misc/batchdelay
+    chown system system /sys/class/misc/m_batch_misc/batchbatch
+    chown system system /sys/class/misc/m_batch_misc/batchflush
+
+    chmod 0660 /sys/class/misc/m_alsps_misc/alsactive
+    chmod 0660 /sys/class/misc/m_alsps_misc/alsdelay
+    chmod 0660 /sys/class/misc/m_alsps_misc/alsbatch
+    chmod 0660 /sys/class/misc/m_alsps_misc/alsflush
+    chmod 0660 /sys/class/misc/m_alsps_misc/psactive
+    chmod 0660 /sys/class/misc/m_alsps_misc/psdelay
+    chmod 0660 /sys/class/misc/m_alsps_misc/psbatch
+    chmod 0660 /sys/class/misc/m_alsps_misc/psflush
+    chown system system /sys/class/misc/m_alsps_misc/alsactive
+    chown system system /sys/class/misc/m_alsps_misc/alsdelay
+    chown system system /sys/class/misc/m_alsps_misc/alsbatch
+    chown system system /sys/class/misc/m_alsps_misc/alsflush
+    chown system system /sys/class/misc/m_alsps_misc/psactive
+    chown system system /sys/class/misc/m_alsps_misc/psdelay
+    chown system system /sys/class/misc/m_alsps_misc/psbatch
+    chown system system /sys/class/misc/m_alsps_misc/psflush
+
+    chmod 0660 /sys/class/misc/m_step_c_misc/step_cactive
+    chmod 0660 /sys/class/misc/m_step_c_misc/step_cdelay
+    chmod 0660 /sys/class/misc/m_step_c_misc/step_cbatch
+    chmod 0660 /sys/class/misc/m_step_c_misc/step_cflush
+    chown system system /sys/class/misc/m_step_c_misc/step_cactive
+    chown system system /sys/class/misc/m_step_c_misc/step_cdelay
+    chown system system /sys/class/misc/m_step_c_misc/step_cbatch
+    chown system system /sys/class/misc/m_step_c_misc/step_cflush
+
+# ST480 magnetometer daemon: calibration/fusion for the compass; opens
+# /dev/msensor and keeps /data/misc/st480_set.txt (blob:bin/st480, 64-bit).
+# Running on stock (live:00-getprop init.svc.st480=running).
+# [DEV stock:init.project.rc:168-171]
+service st480 /vendor/bin/st480
+    class main
+    user system
+    group system
+
+# sensors@1.0 with group input. `override` must precede `interface`
+# (ServiceParser::ParseInterface) [CONV m95:init.m95.sensors.rc:205-219].
+service vendor.sensors-hal-1-0 /vendor/bin/hw/android.hardware.sensors@1.0-service
+    override
+    interface android.hardware.sensors@1.0::ISensors default
+    class hal
+    user system
+    group system wakelock uhid context_hub input
+    capabilities BLOCK_SUSPEND
+    rlimit rtprio 10 10

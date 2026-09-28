@@ -1,0 +1,279 @@
+# ueventd rules for the Meizu M6 (meizu_m6 / M711), MT6750 (ro.hardware=mt6755),
+# LineageOS 20 (Android 13), full Treble. Installed as /vendor/etc/ueventd.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+#
+# Where this file is read on A13 (FACT, los20/system/core):
+#   rootdir/ueventd.rc:1   "import /vendor/etc/ueventd.rc"  -> this file.
+#   init/ueventd.cpp:300-310  /system/etc/ueventd.rc is canonical; the legacy
+#   /vendor/ueventd.rc, /odm/ueventd.rc and /ueventd.${ro.hardware}.rc are
+#   only added while ro.product.first_api_level < 33, and /ueventd.mt6755.rc
+#   would have to sit in the system-image root anyway (the boot ramdisk is
+#   gone after switch_root). So /vendor/etc/ueventd.rc is the one path that
+#   is always parsed.
+#   init/devices.cpp:274  permissions are searched from the LAST rule
+#   backwards: a later line (and this file, parsed after the AOSP one) wins.
+#
+# Why this file matters more than on a newer kernel (FACT):
+#   meizu-fleet/wt/kernel_meizu_m6_ebpf/.../meizu_m6_a13_defconfig has no
+#   CONFIG_DEVTMPFS, so EVERY /dev node is created by ueventd with the mode
+#   and owner from these rules; anything not listed here is root:root 0600.
+#
+# Evidence tags (same discipline as device/meizu/m95):
+#   [DEV]  fact of this device: stock Flyme 7.1.2.0G boot ramdisk
+#          (meizu_m6/stock-flyme-7.1.2.0G/boot-unpacked/initrd.img, sha256
+#          3870bee6a464ac66...; cited as "stock:<file>:<line>"), the LOS 16.0
+#          tree that booted REDACTED_UNIT (gunwest-import/m6rom16/rom-work/
+#          device/meizu/m3_meizu_m6-common/rootdir, cited as "los16:<file>:<line>"),
+#          the live capture meizu_m6/captures/m6cap-20260725-1305 ("live:<file>"),
+#          strings of the blobs actually installed in /vendor ("blob:<path>"),
+#          or the M6 kernel source ("kernel:<path>").
+#   [CONV] convention carried over from the m95 A13 port
+#          (los20/device/meizu/m95/rootdir/ueventd.mt6797.rc, "m95:<line>").
+
+# ============================ subsystem rules ================================
+# m95 learned on Android 9 that without these the device black-screens
+# (/dev/graphics/fb0 never appears) and touch is dead (/dev/input/ empty)
+# [CONV m95:3-20]. On A13 the AOSP file already declares both, with
+# devname uevent_devpath + dirname (los20 system/core/rootdir/ueventd.rc:6-16),
+# and it is parsed first, so the two blocks below are ignored with
+# "ignoring duplicate subsystem entry" (init/ueventd_parser.cpp:204). They are
+# kept anyway: same resulting node names (fb0 -> /dev/graphics/fb0,
+# input/eventN -> /dev/input/eventN), and m95 boots A13 with exactly them.
+# Never pre-place a symlink where ueventd should create a node [CONV m95:13-14].
+subsystem graphics
+	devname uevent_devname
+	dirname /dev/graphics
+
+subsystem input
+	devname uevent_devname
+
+# [DEV stock:ueventd.rc:1-2]
+subsystem adf
+	devname uevent_devname
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# Block devices. by-name path = mtk-msdc.0/11230000.msdc0 [DEV live:03-partitions,
+# live:04-mounts]. Only partitions that exist on M6 are listed: no otp, ppl,
+# misc2 or nvcfg in live:03-partitions, so stock's lines for them are dropped.
+# [DEV stock:ueventd.mt6755.rc:2-22]
+# ---------------------------------------------------------------------------
+/dev/block/mmcblk0                                              0660    root    system
+/dev/block/mmcblk0boot0                                         0660    root    system
+/dev/block/mmcblk0boot1                                         0660    root    system
+/dev/misc-sd                                                    0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/boot      0640    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/recovery  0640    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/secro     0640    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/seccfg    0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/proinfo   0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/nvram     0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/para      0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/logo      0640    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/frp       0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/md1img    0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/md1dsp    0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/md1arm7   0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/md3img    0660    root    system
+/dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/devinfo   0440    root    system
+
+# ---------------------------------------------------------------------------
+# Display / GPU — what SurfaceFlinger, composer@2.1 (user system, group
+# graphics: los20 hardware/interfaces/graphics/composer/2.1/default/*.rc) and
+# every GL client need.
+# ---------------------------------------------------------------------------
+# blob:lib64/hw/gralloc.mt6750.so opens /dev/graphics/fb%u;
+# blob:lib64/hw/hwcomposer.mt6755.so opens /dev/graphics/fb%d.
+# [DEV stock:init.mt6755.rc:448-449 chown system graphics, chmod 0660]
+/dev/graphics/*           0660   system     graphics
+# blob:hwcomposer.mt6755.so builds "/dev/%s" from "mtk_disp_mgr" (session,
+# vsync, present fence ioctls). [DEV stock:init.mt6755.rc:451-452]
+/dev/mtk_disp_mgr         0660   system     graphics
+# [DEV stock:init.mt6755.rc:454-458]
+/dev/mtkfb_vsync          0660   system     graphics
+/dev/sw_sync              0660   system     graphics
+# [DEV stock:init.mt6755.rc:537 chmod 0444]
+/dev/mtk_disp             0444   system     graphics
+# blob:hwcomposer.mt6755.so and every gralloc client open /dev/ion.
+# [DEV stock:ueventd.mt6755.rc:117]
+/dev/ion                  0666   system     graphics
+# Mali-T860 (CONFIG_MTK_GPU_VERSION="mali midgard r12p1"). The kernel registers
+# the misc device as "%s%d" -> mali0 (kernel:drivers/misc/mediatek/gpu/
+# gpu_mali/mali_midgard/*/mali_kbase_core_linux.c); blob:lib64/egl/
+# libGLES_mali.so carries "/dev/mali". Both names, world-rw, as stock.
+# [DEV stock:ueventd.mt6755.rc:114, stock:init.mt6755.rc:210 chmod 666 /dev/mali0]
+/dev/mali                 0666   system     graphics
+/dev/mali0                0666   system     graphics
+# GCE command queue. The kernel creates /dev/mtk_cmdq with a bare
+# device_create (kernel:drivers/misc/mediatek/cmdq/v2/cmdq_driver.c:994) and
+# /proc/mtk_cmdq 0644 (:1020); blob:libdpframework.so uses the /proc one.
+# Stock gave the /dev node 0640 system system (stock:init.mt6755.rc:251-252);
+# m95 widened it to group camera so OMX and the camera provider reach it
+# [CONV m95:101-127]. Owner system still covers composer/surfaceflinger.
+/dev/mtk_cmdq             0660   system     camera
+# AAL ambient-light feed of the display driver (blob:libaal.so opens
+# /dev/aal_als). [DEV stock:init.mt6755.rc:267,281]
+/dev/aal_als              0660   system     system
+
+# ---------------------------------------------------------------------------
+# Media / camera (not needed for first screen; cheap and stock-backed).
+# ---------------------------------------------------------------------------
+# Owner/group follow the A13 process layout, not Nougat's mediaserver:
+# media.codec runs uid mediacodec with groups camera,drmrpc,mediadrm and the
+# camera provider has group camera. m95 proved "system media" locks OMX out
+# of /dev/Vcodec [CONV m95:137-147]. The kernel creates /dev/Vcodec itself
+# (kernel:drivers/misc/mediatek/videocodec/mt6755/videocodec_kernel_driver.c:2211).
+/dev/Vcodec               0660   system     camera
+# blob:libbwc.so opens /dev/MTK_SMI from the camera host; los16 already moved
+# it to group camera for that reason [DEV los16:init.mt6755.rc:845-848].
+/dev/MTK_SMI              0660   system     camera
+# blob:libvcodec_utility.so and libcam*.so open /dev/mtk_sched; stock had
+# "system media" (stock:init.mt6755.rc:611-612) — same A13 regrouping as Vcodec.
+/dev/mtk_sched            0660   system     camera
+# [DEV stock:init.mt6755.rc:573-574]
+/dev/mt-mdp               0660   system     media
+# [DEV stock:init.mt6755.rc:540-562, stock:init.project.rc:12-19,
+#  live:42-camera_nodes; kernel:drivers/misc/mediatek/lens/main/main_lens.c:35
+#  AF_DRVNAME "MAINAF"]
+/dev/camera-sysram        0660   system     camera
+/dev/camera-isp           0660   system     camera
+/dev/camera-fdvt          0660   system     camera
+/dev/camera-pipemgr       0660   system     camera
+/dev/kd_camera_hw         0660   system     camera
+/dev/kd_camera_hw_bus2    0660   system     camera
+/dev/kd_camera_flashlight 0660   system     camera
+/dev/CAM_CAL_DRV          0660   system     camera
+/dev/MAINAF               0660   system     camera
+/dev/MAINAF2              0660   system     camera
+/dev/SUBAF                0660   system     camera
+# Efuse/devinfo map. Stock 0440 root system (stock:init.mt6755.rc:506-508);
+# m95 regrouped to camera for the camera HAL and mediacodec [CONV m95:165-176].
+/dev/devmap               0440   system     camera
+
+# ---------------------------------------------------------------------------
+# Audio
+# ---------------------------------------------------------------------------
+# Speaker amplifier [DEV stock:ueventd.mt6755.rc:52]
+/dev/aw8738               0660   media      media
+
+# ---------------------------------------------------------------------------
+# Modem (md1 + md3/C2K over eCCCI). Nodes seen live: ccci_* and ccci3_*,
+# radio:radio 0660, *_aud audio:audio [DEV live:72-modem].
+# Order matters: the specific *_aud lines come AFTER the /dev/ccci* wildcard,
+# because the last matching rule wins (init/devices.cpp:274).
+# [DEV stock:ueventd.mt6755.rc:66-89, 106-111, 127-128]
+# ---------------------------------------------------------------------------
+/dev/ccci*                0660   radio      radio
+/dev/ttyC*                0660   radio      radio
+/sys/kernel/ccci          modem_info   0644   radio       radio
+/sys/kernel/ccci          md1_postfix  0644   radio       radio
+/sys/kernel/ccci          md2_postfix  0644   radio       radio
+/dev/eemcs*               0660   radio      radio
+/dev/emd*                 0660   radio      radio
+/dev/ccci_pcm_rx          0660   audio      audio
+/dev/ccci_pcm_tx          0660   audio      audio
+/dev/ccci_aud             0660   audio      audio
+/dev/ccci2_aud            0660   audio      audio
+/dev/ccci3_aud            0660   audio      audio
+/dev/eemcs_aud            0660   audio      audio
+/dev/ttyUSB0              0660   radio      radio
+/dev/ttyUSB1              0660   radio      radio
+/dev/ttyUSB2              0660   radio      radio
+/dev/ttyUSB3              0660   radio      radio
+/dev/ttyUSB4              0660   radio      radio
+/dev/ttyACM0              0660   radio      radio
+/dev/ttySDIO*             0660   radio      sdcard_rw
+/dev/ttyRB*               0660   radio      radio
+/dev/mtgpio               0600   radio      root
+
+# ---------------------------------------------------------------------------
+# Connectivity — MT6755 CONSYS (Wi-Fi/BT/GPS/FM), wmt_loader/wmt_launcher.
+# ---------------------------------------------------------------------------
+# Stock: system system (stock:ueventd.mt6755.rc:28-29). wmt_loader runs as
+# root (stock:init.connectivity.rc:47-51); m95 made these root-owned so the
+# loader does not need dac_override once SELinux is enforcing — wmt_launcher
+# (system) still gets in by group [CONV m95:47-60].
+/dev/stpwmt               0660   root       system
+/dev/wmtdetect            0660   root       system
+# Stock: bluetooth net_bt_stack (stock:ueventd.mt6755.rc:32). AID 3008 has no
+# name in current bionic, ueventd drops such a rule and the node stays
+# root 0600 [CONV m95:62-65].
+/dev/stpbt                0660   bluetooth  bluetooth
+/dev/stpgps               0660   gps        gps
+/dev/gps                  0660   gps        system
+/dev/stpant               0660   system     system
+# Stock: system system (stock:ueventd.mt6755.rc:42). On Pie+ the Wi-Fi HAL
+# process (uid wifi) writes the driver state; los16 re-owned it to wifi at
+# runtime (los16:init.mt6755.rc:1264-1267) [CONV m95:69-73].
+/dev/wmtWifi              0660   wifi       system
+/dev/fm                   0660   media      media
+/dev/btif                 0600   system     system
+# BT/FM/GPS UART; wmt_launcher opens it (blob:bin/wmt_launcher "/dev/ttyMT2").
+# Stock did this with chmod/chown at post-fs-data
+# (stock:init.connectivity.rc:11-12); a ueventd rule covers coldboot.
+/dev/ttyMT2               0660   system     system
+
+# ---------------------------------------------------------------------------
+# TEE — MicroTrust (TEEI), not Trustonic: ro.mtk_microtrust_tee_support=1,
+# soter.teei.init=INIT_OK, /dev/teei_* present [DEV live:63-tee,
+# live:62-fingerprint]; CONFIG_MICROTRUST_TEE_SUPPORT=y (A13 defconfig:292).
+# Stock set these with chmod/chown `on fs` (stock:init.microtrust.rc:4-16);
+# node names from kernel:drivers/misc/mediatek/teei/V1.0 ("teei_client",
+# "teei_config", "ut_keymaster"). keymaster@3.0-service runs as user nobody
+# (los20 hardware/interfaces/keymaster/3.0/default/*.rc), so ut_keymaster
+# and teei_client must stay world-rw as in stock.
+# (stock ueventd.mt6755.rc:60-63 /dev/mobicore* are Trustonic template
+# leftovers — this device has no Trustonic driver; not carried.)
+# ---------------------------------------------------------------------------
+/dev/teei_client          0666   system     system
+/dev/teei_config          0660   system     system
+/dev/tz_vfs               0660   system     system
+/dev/teei_fp              0666   system     system
+/dev/ut_keymaster         0666   system     system
+/dev/emmcrpmb0            0660   system     system
+# Goodix fingerprint (GF3208, CONFIG_GOODIX_FINGERPRINT=y). Live stock node is
+# system:system 0600 (live:62-fingerprint); los16 opened it to 0660
+# (los16 device/meizu/meizu_m6/microtrust.rc:57-59). The FP daemon itself is
+# not started by this draft (see INSTALL.txt, "not ported").
+/dev/goodix_fp            0660   system     system
+
+# ---------------------------------------------------------------------------
+# Sensors — MTK hwmsen stack: BMA253 accel, LTR578 als/ps, ST480 mag,
+# step counter (A13 defconfig:222-231). blob:lib64/hw/sensors.mt6750.so opens
+# /dev/hwmsensor, /dev/m_batch_misc and /dev/input/event%d.
+# [DEV stock:init.mt6755.rc:262-281, los16:init.mt6755.rc:355-376]
+# ---------------------------------------------------------------------------
+/dev/hwmsensor            0660   system     system
+/dev/msensor              0660   system     system
+/dev/gsensor              0660   system     system
+/dev/gyroscope            0660   system     system
+/dev/als_ps               0660   radio      system
+/dev/m_batch_misc         0660   system     system
+
+# ---------------------------------------------------------------------------
+# Touch / hotknot, hang detect, power management
+# ---------------------------------------------------------------------------
+# [DEV stock:ueventd.mt6755.rc:120-125]
+/dev/touch                0660   root       system
+/dev/hotknot              0660   root       system
+/dev/RT_Monitor           0600   system     system
+/dev/kick_powerkey        0600   system     system
+# SPM firmware loader node; spm_loader runs as root, the chown is stock's
+# (stock:init.mt6755.rc:87-88, `on charger`).
+/dev/spm                  0660   system     system
+# OTP [DEV stock:ueventd.mt6755.rc:25]
+/dev/otp                  0660   system     system
+
+# ---------------------------------------------------------------------------
+# LEDs written by lights.mt6750 (blob strings: red/green/blue delay_on,
+# delay_off, trigger). lcd-backlight/brightness is chowned by the AOSP
+# init.rc itself (los20 system/core/rootdir/init.rc:1155).
+# [DEV stock:ueventd.mt6755.rc:98-103]
+# ---------------------------------------------------------------------------
+/sys/devices/platform/leds-mt65xx/leds/green   delay_on      0664  system   system
+/sys/devices/platform/leds-mt65xx/leds/green   delay_off     0664  system   system
+/sys/devices/platform/leds-mt65xx/leds/red     delay_on      0664  system   system
+/sys/devices/platform/leds-mt65xx/leds/red     delay_off     0664  system   system
+/sys/devices/platform/leds-mt65xx/leds/blue    delay_on      0664  system   system
+/sys/devices/platform/leds-mt65xx/leds/blue    delay_off     0664  system   system

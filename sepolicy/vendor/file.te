@@ -1,0 +1,15 @@
+# Placeholder vendor sepolicy for meizu_m6.
+#
+# The build is androidboot.selinux=permissive (BoardConfig.mk cmdline) and
+# SELINUX_IGNORE_NEVERALLOWS is on.
+#
+# That is not a guess about A13 - it is measured one Android version down. FACT:
+# the LineageOS 16.0 lane had to set the same flag for this exact family, and
+# recorded why: "Pie public-policy neverallows reject Oreo-era MTK vendor rules
+# (first hits: dac_override for mtk_wmt_loader / mtk_gsm0710muxd /
+# mtk_aee_core_forwarder)"
+# (gunwest-import/m6rom16/rom-work/device/meizu/m3_meizu_m6-common/BoardConfigCommon.mk).
+# A13's public policy is strictly stricter than Pie's.
+#
+# Nothing real can be written here until a kernel boots far enough to produce a
+# single avc denial log on this device under Android 13.

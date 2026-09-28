@@ -1,0 +1,297 @@
+# init.meizu_m6.modem.rc — Meizu M6 modem on Android 13: md1 (GSM/WCDMA/LTE)
+# + md3 (C2K/CDMA) over the integrated eCCCI, and the RIL.
+# Installed as /vendor/etc/init/hw/init.meizu_m6.modem.rc, imported by
+# init.mt6755.rc AFTER init.meizu_m6.nvram.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+# Tags as in init.mt6755.rc.
+#
+# The M6 is full-netcom like the MX6 (FACT, live:00-getprop and live:72-modem):
+#   ro.mtk_c2k_support=1, ro.mtk_enable_md3=1, mtk.eccci.c2k=enabled,
+#   ril.external.md=0, ro.boot.opt_md3_support=2, mtk.md3.status=ready,
+#   /dev/ccci_* and /dev/ccci3_* present, opt_md2_support=0 (no md2);
+#   running on stock: ccci_fsd, ccci_mdinit, ccci3_fsd, ccci3_mdinit,
+#   gsm0710muxd, ril-daemon-mtk, ril-proxy, viarild.
+#   Kernel: CONFIG_MTK_ECCCI_DRIVER=y, CONFIG_MTK_ECCCI_C2K=y
+#   (meizu_m6_a13_defconfig:244-245).
+#
+# SERVICE NAMES ARE LOAD-BEARING — the 32-bit daemons chain-start each other
+# through hard-coded ctl.start/ctl.stop values (FACT, strings on the installed
+# blobs):
+#   ccci_mdinit -> "ccci_fsd", "ccci3_fsd", "gsm0710muxd", "gsm0710muxdmd2",
+#                  "ril-daemon-mtk", "ril-daemon-mtkmd2", "viarild",
+#                  "mdlogger", "emdlogger1..3"; watches init.svc.ril-proxy;
+#                  waits for service.nvram_init
+#   gsm0710muxd -> ctl.stop "ril-daemon", ctl.start "ril-daemon-mtk"
+# Do not rename. Layout and reasoning follow m95's A13 modem file
+# (m95:init.m95.modem.rc), which registers IRadio on the MX6 with the same
+# family of blobs.
+
+on post-fs-data
+    # gsm0710muxd links its pty slaves under /dev/radio.
+    # [DEV stock:init.mt6755.rc:172-173]
+    mkdir /dev/radio 0770 radio radio
+
+    # [DEV stock:init.modem.rc:22-37] — /data/nvram is the bind-mounted
+    # /nvdata at this point (init.meizu_m6.nvram.rc, imported first).
+    mkdir /data/nvram/md 0770 root system
+    mkdir /data/nvram/md3 0770 root system
+    mkdir /data/md3 0770 root system
+    mkdir /data/ccci_cfg 0770 system radio
+    restorecon_recursive /data/ccci_cfg
+    chown radio radio /sys/kernel/ccci/boot
+
+# Belt and braces for the mux start. Stock relies on ccci_mdinit's ctl.start
+# alone; los16 added this trigger (los16:init.modem.rc:56-59). `start` of an
+# already-running oneshot is a no-op.
+on property:mtk.md1.status=ready
+    start gsm0710muxd
+
+# [DEV stock:init.modem.rc:56-61, 194-195]
+on property:ril.muxreport=1
+    start muxreport-daemon
+
+##############################
+# CCCI modem file-system servers + modem-image loaders, auto-started as on
+# stock (class core, not disabled). los16 had the md3 pair `disabled`
+# (los16:init.modem.rc:162-174) without a recorded reason; stock ran both
+# (live:00-getprop) and m95 runs both on A13, so they are enabled here —
+# INSTALL.txt H-MD3.
+##############################
+
+# md1 [DEV stock:init.modem.rc:137-147]
+service ccci_fsd /vendor/bin/ccci_fsd 0
+    class core
+    user radio
+    group radio system
+    oneshot
+
+service ccci_mdinit /vendor/bin/ccci_mdinit 0
+    class core
+    user system
+    group radio system
+    oneshot
+
+# md3 / C2K [DEV stock:init.modem.rc:149-159]
+service ccci3_fsd /vendor/bin/ccci_fsd 2
+    class core
+    user radio
+    group radio system
+    oneshot
+
+service ccci3_mdinit /vendor/bin/ccci_mdinit 2
+    class core
+    user system
+    group radio system
+    oneshot
+
+##############################
+# 07.10 MUX
+##############################
+
+# [DEV stock:init.modem.rc:42-47]
+service gsm0710muxd /vendor/bin/gsm0710muxd -s /dev/ttyC0 -f 512 -n 8 -m basic
+    class core
+    user root
+    group radio cache inet misc
+    disabled
+    oneshot
+
+# md2 does not exist (opt_md2_support=0), but ccci_mdinit references the
+# name; defined-but-disabled so a stray ctl.start does not hit an unknown
+# service. [DEV stock:init.modem.rc:49-54] [CONV m95:init.m95.modem.rc:96-105]
+service gsm0710muxdmd2 /vendor/bin/gsm0710muxdmd2 -s /dev/ccci2_tty0 -f 512 -n 8 -m basic
+    class core
+    user root
+    group radio cache inet misc
+    disabled
+    oneshot
+
+# [DEV stock:init.modem.rc:56-61]
+service muxreport-daemon /vendor/bin/muxreport
+    class core
+    user radio
+    group radio cache inet misc
+    disabled
+    oneshot
+
+##############################
+# RIL
+##############################
+
+# Started by gsm0710muxd (ctl.start "ril-daemon-mtk") once the MUX channels
+# are up. Stock ran /vendor/bin/mtkrild here (stock:init.rilproxy.rc:27-48),
+# a Nougat SOCKET RIL; the A13 framework only talks IRadio (HIDL/AIDL), so —
+# exactly as on m95 — the name is bound to the AOSP A13 rild (vendor
+# /vendor/bin/hw/rild, pulled in by full_base_telephony.mk,
+# lineage_meizu_m6.mk:14) loading the stock mtk-ril.so
+# (vendor/lib64/mtk-ril.so + librilmtk.so are in vendor-blobs.mk)
+# [CONV m95:init.m95.modem.rc:112-153].
+# Library via -l, NOT vendor.rild.libpath: vendor.ril-daemon below is
+# restarted by every `class_restart main` and would load a second copy
+# [CONV m95:init.m95.modem.rc:144-148]. Arguments come from
+# vendor.rild.libargs — A13 rild reads the vendor.-prefixed names
+# [CONV m95:init.m95.modem.rc:131-152]; vendor.prop has only the old
+# rild.libargs, see INSTALL.txt.
+# Socket set = stock's effective layout: init.rilproxy.rc is imported before
+# init.modem.rc (stock:init.mt6755.rc:8 vs :19), so its ril-daemon-mtk wins
+# (stock:init.rilproxy.rc:27-48).
+service ril-daemon-mtk /vendor/bin/hw/rild -l mtk-ril.so
+    class core
+    socket mrild stream 660 root radio
+    socket mrild2 stream 660 root radio
+    socket mrild3 stream 660 root radio
+    socket mrild4 stream 660 root radio
+    socket rild-ims stream 660 root radio
+    socket rild-debug stream 660 radio system
+    socket rild-oem stream 660 radio system
+    socket rild-mtk-ut stream 660 radio net_bt
+    socket rild-mtk-ut-2 stream 660 radio net_bt
+    socket rild-mtk-modem stream 660 radio system
+    socket rild-atci stream 660 root radio
+    socket rild-mal stream 660 radio system
+    socket rild-mal-at stream 660 radio system
+    socket rild-vsim stream 660 root radio
+    socket rild-mbim stream 660 root radio
+    socket msap_uim_socket1 stream 660 radio radio
+    socket msap_uim_socket2 stream 660 radio radio
+    user root
+    group radio cache inet misc audio sdcard_r sdcard_rw log system
+    disabled
+    # No `oneshot` (stock has it): on m95 the N mtk-ril.so crashes for a
+    # software reason (RIL_Env ABI), ccci_mdinit never restarts it, and with
+    # oneshot telephony was gone for the session
+    # [CONV m95:init.m95.modem.rc:184-210]. A crash must stay visible and
+    # survivable.
+
+# md2 RIL: defined-but-disabled for ccci_mdinit's reference.
+# [DEV stock:init.modem.rc:87-104] [CONV m95:init.m95.modem.rc:212-231]
+service ril-daemon-mtkmd2 /vendor/bin/mtkrildmd2
+    class core
+    socket rild-md2 stream 660 root radio
+    socket rild2-md2 stream 660 root radio
+    socket rild-debug-md2 stream 660 radio system
+    socket rild-oem-md2 stream 660 radio system
+    socket rild-mtk-ut-md2 stream 660 radio net_bt
+    socket rild-mtk-ut-2-md2 stream 660 radio net_bt
+    socket rild-mtk-modem-md2 stream 660 radio system
+    socket rild-atci-md2 stream 660 root radio
+    socket rild-mal-md2 stream 660 radio system
+    socket rild-mal-at-md2 stream 660 radio system
+    socket rild-vsim-md2 stream 660 root radio
+    socket rild-mbim-md2 stream 660 root radio
+    user root
+    group radio cache inet misc audio sdcard_r sdcard_rw log system
+    disabled
+    oneshot
+
+# GSM<->C2K request router of the Nougat socket framework. Defined so the
+# name exists (ccci_mdinit watches init.svc.ril-proxy), NOT triggered: stock
+# starts it on ril.rilproxy=1 (stock:init.rilproxy.rc:51-52), but on m95 it
+# only looped "connectSocket fail" because no socket peer exists on A13
+# [CONV m95:init.m95.modem.rc:253-272].
+# [DEV stock:init.rilproxy.rc:8-25]
+service ril-proxy /vendor/bin/rilproxy -l mtk-rilproxy.so
+    class core
+    socket rild stream 660 root radio
+    socket rild2 stream 660 root radio
+    socket rild3 stream 660 root radio
+    socket rild4 stream 660 root radio
+    socket rilproxy-atci stream 660 root radio
+    socket rilproxy-ims stream 660 root radio
+    socket rilproxy-mal stream 660 radio system
+    socket sap_uim_socket1 stream 660 bluetooth bluetooth
+    socket sap_uim_socket2 stream 660 bluetooth bluetooth
+    socket sap_uim_socket3 stream 660 bluetooth bluetooth
+    socket sap_uim_socket4 stream 660 bluetooth bluetooth
+    socket embmsd stream 660 radio inet
+    user root
+    group radio cache inet misc audio sdcard_r sdcard_rw log system
+    disabled
+    oneshot
+
+# C2K RIL, started by ccci_mdinit ("start c2k rild", ctl.start "viarild").
+# 32-bit blob with /vendor/lib/libviatelecom-withuim-ril.so (vendor-blobs.mk).
+# With eCCCI C2K the SDIO tty argument is vestigial; cmdline kept verbatim.
+# Stock also declares "socket rild-debug", colliding with ril-daemon-mtk's
+# socket of the same name — dropped [CONV m95:init.m95.modem.rc:292-295].
+# [DEV stock:init.modem.rc:112-125; live:00-getprop init.svc.viarild running]
+service viarild /vendor/bin/viarild -l /vendor/lib/libviatelecom-withuim-ril.so -- -d /dev/ttySDIO4
+    class core
+    socket rild-via stream 660 radio radio
+    socket msap_c2k_socket1 stream 660 radio radio
+    socket msap_c2k_socket2 stream 660 radio radio
+    socket msap_c2k_socket3 stream 660 radio radio
+    socket msap_c2k_socket4 stream 660 radio radio
+    socket rpc stream 660 radio system
+    socket rild-ctclient stream 660 radio system
+    socket rild-atci-c2k stream 660 radio system
+    group radio cache inet misc audio sdcard_r sdcard_rw log system
+    disabled
+    oneshot
+
+# Telephony Early Read. [DEV stock:init.modem.rc:188-192]
+service terservice /vendor/bin/terservice
+    class core
+    user radio
+    group radio cache inet misc
+    oneshot
+
+##############################
+# AOSP rild neutralised. full_base_telephony.mk installs
+# /vendor/etc/init/rild.rc ("service vendor.ril-daemon /vendor/bin/hw/rild",
+# class main — los20 hardware/ril/rild/rild.rc). This file is imported from
+# init.rc and parsed first, so this definition wins and the later one is
+# rejected as a duplicate. `disabled` alone does not keep it down (every
+# class_restart main starts it); it stays harmless only because no
+# vendor.rild.libpath is set anywhere, so it takes rild's "no-ril" path
+# [CONV m95:init.m95.modem.rc:309-326].
+##############################
+service vendor.ril-daemon /vendor/bin/hw/rild
+    class main
+    user radio
+    group radio cache inet misc audio log readproc wakelock
+    disabled
+    oneshot
+
+##############################
+# Modem loggers — all disabled; `start emdlogger1` by hand when debugging.
+# ccci_mdinit ctl.starts them on an early MD exception (blob strings "start
+# mdlogger when MD exception early happens"). Binaries present:
+# mdlogger, emdlogger1/2/3/5 (vendor-blobs.mk); no emdlogger6/dualmdlogger.
+# [DEV stock:init.mt6755.rc:1220-1258]
+##############################
+service mdlogger /vendor/bin/mdlogger
+    class main
+    user shell
+    group shell system radio sdcard_rw inet sdcard_r media_rw
+    disabled
+    oneshot
+
+service emdlogger1 /vendor/bin/emdlogger1
+    class main
+    user shell
+    group system shell radio sdcard_rw inet sdcard_r media_rw
+    disabled
+    oneshot
+
+service emdlogger2 /vendor/bin/emdlogger2
+    class main
+    user shell
+    group system shell radio sdcard_rw inet sdcard_r media_rw
+    disabled
+    oneshot
+
+service emdlogger3 /vendor/bin/emdlogger3
+    class main
+    user shell
+    group system shell radio sdcard_rw inet sdcard_r media_rw
+    disabled
+    oneshot
+
+service emdlogger5 /vendor/bin/emdlogger5
+    class main
+    user shell
+    group system shell radio sdcard_rw inet sdcard_r media_rw
+    disabled
+    oneshot

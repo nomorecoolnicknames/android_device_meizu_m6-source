@@ -1,0 +1,130 @@
+# init.mt6755.usb.rc — Meizu M6 (meizu_m6), USB gadget for Android 13.
+# Installed as /vendor/etc/init/hw/init.mt6755.usb.rc, imported by
+# init.mt6755.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+#
+# Gadget: legacy MTK android_usb composite, not configfs — CONFIG_USB_G_ANDROID=y
+# in meizu_m6_a13_defconfig:446 and stock reports sys.usb.configfs=0
+# (live:00-getprop). adbd on A13 speaks only functionfs, so the ffs mount and
+# the f_ffs alias below are the whole adb story; without this file the generic
+# init.usb.rc selects the legacy f_adb function and the host sees an adb
+# interface with nobody behind it ("offline") [CONV m95:init.mt6797.usb.rc:4-11].
+#
+# Values (VID, PIDs, manufacturer) are the stock M6 ones [DEV
+# stock:init.mt6755.usb.rc], not m95's: e.g. mtp,adb is 0C02 here.
+# Tags as in init.mt6755.rc.
+
+on early-init
+    # [CONV m95:init.mt6797.usb.rc:13-20] adbd reads this once, at start.
+    # m95's f_fs had no AIO; this kernel's f_fs does (ffs_epfile_aio_*,
+    # meizu-fleet/designs/TREBLE_M6_M6T_20260924.md §3.3), so AIO would probably
+    # work too — compat is kept because it works on either kernel and removes
+    # one variable from the first boot (INSTALL.txt H-USB1).
+    setprop sys.usb.ffs.aio_compat 1
+
+on boot
+    # [DEV stock:init.mt6755.usb.rc:1-5; live:00-getprop sys.usb.vid=2A45]
+    setprop sys.usb.vid 2A45
+    write /sys/class/android_usb/android0/iManufacturer MediaTek
+    write /sys/class/android_usb/android0/iProduct ${ro.product.model}
+    write /sys/class/android_usb/android0/iSerial ${ro.serialno}
+    # [DEV stock:init.mt6755.rc:625-626] serial is rewritten by the gadget code
+    chown root system /sys/class/android_usb/android0/iSerial
+    chmod 0664 /sys/class/android_usb/android0/iSerial
+
+on fs
+    # [DEV stock:init.mt6755.usb.rc:10-14; live:04-mounts
+    #  "adb /dev/usb-ffs/adb functionfs"]
+    mkdir /dev/usb-ffs 0770 shell shell
+    mkdir /dev/usb-ffs/adb 0770 shell shell
+    mount functionfs adb /dev/usb-ffs/adb uid=2000,gid=2000
+    write /sys/class/android_usb/android0/f_ffs/aliases adb
+
+# [DEV stock:init.mt6755.usb.rc:32-37]. Stock also wrote
+# /sys/devices/platform/mt_usb/saving — a 3.18.35 path; on the 3.18.140 line
+# los16 used 11270000.usb3/musb-hdrc instead, so that write is not carried.
+on property:sys.usb.config=none
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/bDeviceClass 0
+    setprop sys.usb.state ${sys.usb.config}
+
+# [DEV stock:init.mt6755.usb.rc:51-58]
+on property:sys.usb.config=adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 201C
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    # [DEV los16:init.project.rc:260-266, los16:init.mt6755.rc:1987-1993]
+    # "MTK adb peripheral mode": the los16 build (same 3.18.140 kernel line)
+    # forces the musb controller into device mode for adb. Harmless if the
+    # node is absent (init logs one write error).
+    write /sys/devices/platform/11270000.usb3/musb-hdrc/cmode 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# [DEV stock:init.mt6755.usb.rc:91-97]
+on property:sys.usb.config=mtp
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 2008
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# [DEV stock:init.mt6755.usb.rc:110-117; stock default persist.sys.usb.config
+#  was mtp,adb (live:00-getprop)]
+on property:sys.usb.config=mtp,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 0C02
+    write /sys/class/android_usb/android0/functions mtp,adb
+    write /sys/class/android_usb/android0/enable 1
+    # INFERENCE: los16 wrote cmode only for plain "adb"; it is repeated for
+    # every *,adb combination here because LOS userdebug defaults to
+    # mtp,adb and the write is idempotent.
+    write /sys/devices/platform/11270000.usb3/musb-hdrc/cmode 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# [DEV stock:init.mt6755.usb.rc:150-156]
+on property:sys.usb.config=ptp
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 200B
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+# [DEV stock:init.mt6755.usb.rc:169-176]
+on property:sys.usb.config=ptp,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 200C
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    write /sys/devices/platform/11270000.usb3/musb-hdrc/cmode 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+# USB tethering [DEV stock:init.mt6755.usb.rc:209-236]
+on property:sys.usb.config=rndis
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 2004
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/bDeviceClass 224
+    write /sys/class/android_usb/android0/enable 1
+    setprop sys.usb.state ${sys.usb.config}
+
+on property:sys.usb.config=rndis,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor ${sys.usb.vid}
+    write /sys/class/android_usb/android0/idProduct 2005
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    write /sys/devices/platform/11270000.usb3/musb-hdrc/cmode 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
