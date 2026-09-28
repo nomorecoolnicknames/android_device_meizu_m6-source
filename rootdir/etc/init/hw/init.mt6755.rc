@@ -1,0 +1,255 @@
+# init.mt6755.rc — Meizu M6 (meizu_m6 / M711), MT6750 silicon with
+# ro.hardware=mt6755 (androidboot.hardware=mt6755 on the LK cmdline,
+# live:01-cmdline). LineageOS 20 (Android 13), full Treble, real /vendor on
+# custom (p3). Installed as /vendor/etc/init/hw/init.mt6755.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+#
+# Principles (taken from device/meizu/m95, the A13 port that reaches the
+# setup wizard):
+#  * A13 init imports only /vendor/etc/init/hw/init.${ro.hardware}.rc
+#    (los20 system/core/rootdir/init.rc:10) and auto-parses /vendor/etc/init/
+#    *.rc but NOT its hw/ subdirectory, so every sibling below is imported by
+#    its INSTALLED path. Root paths (/init.*.rc) do not exist after
+#    switch_root: the root is system.img.
+#  * A service is defined only if its binary is installed in /vendor by
+#    meizu-fleet/wt/device_meizu_m6_treble/vendor-blobs.mk. Nougat paths
+#    /system/bin/X and /system/vendor/bin/X of vendor daemons become
+#    /vendor/bin/X.
+#  * Nothing is pasted wholesale from stock. What was left out, and why, is
+#    listed in INSTALL.txt next to this file — absence is a decision.
+#  * No seclabel lines: the tree has no vendor sepolicy yet
+#    (sepolicy/vendor/file.te is a placeholder) and the build is
+#    androidboot.selinux=permissive. On A13 a vendor daemon without a domain
+#    transition is then started in init's domain with a logged
+#    "has incorrect label or no domain transition" error
+#    (los20 system/core/init/service.cpp:90-99 — refusal only when enforcing).
+#
+# Evidence tags:
+#   [DEV]  fact of this device: stock Flyme 7.1.2.0G boot ramdisk
+#          ("stock:<file>:<line>", initrd sha256 3870bee6a464ac66...), the
+#          LOS 16.0 tree that booted REDACTED_UNIT ("los16:<file>:<line>",
+#          gunwest-import/m6rom16/rom-work/device/meizu/m3_meizu_m6-common/
+#          rootdir unless another dir is named), the live capture
+#          meizu_m6/captures/m6cap-20260725-1305 ("live:<file>"), strings of the
+#          installed blobs ("blob:<path>"), or the kernel source
+#          ("kernel:<path>", meizu-fleet/wt/kernel_meizu_m6_ebpf/kernel-3.18).
+#   [CONV] convention carried from the m95 A13 port ("m95:<file>:<line>",
+#          los20/device/meizu/m95/rootdir).
+
+import /vendor/etc/init/hw/init.mt6755.usb.rc
+# nvram before modem: its post-fs-data bind mount of /nvdata over /data/nvram
+# must run before init.meizu_m6.modem.rc creates /data/nvram/md*; imported
+# files' actions of one trigger run in import order.
+import /vendor/etc/init/hw/init.meizu_m6.nvram.rc
+import /vendor/etc/init/hw/init.meizu_m6.modem.rc
+import /vendor/etc/init/hw/init.meizu_m6.tee.rc
+import /vendor/etc/init/hw/init.meizu_m6.connectivity.rc
+import /vendor/etc/init/hw/init.meizu_m6.thermal.rc
+# init.meizu_m6.sensors.rc is NOT imported here: it lives in /vendor/etc/init
+# (auto-parsed, after the AOSP sensors rc) — see its header.
+
+on early-init
+    # [DEV stock:init.mt6755.rc:23-24] boot-time CPU floor (cluster 1 at
+    # 1.508 GHz, one core held), released at sys.boot_completed below
+    # (stock:init.mt6755.rc:902-905). /proc/ppm is the MT6755 PPM driver.
+    write /proc/ppm/policy/userlimit_min_cpu_freq "1 1508000"
+    write /proc/ppm/policy/userlimit_min_cpu_core "1 1"
+
+    # [DEV stock:init.mt6755.rc:26-27] debugfs. A13 init.rc mounts only
+    # tracefs (los20 init.rc:81-82), and the vendor HALs read debugfs:
+    # memtrack.mt6750 walks
+    # /sys/kernel/debug/ion/clients/%d and /sys/kernel/debug/mali0/gpu_memory
+    # (blob:lib64/hw/memtrack.mt6750.so). m95 lost memtrack the same way
+    # [CONV m95:init.mt6797.rc:35-42].
+    mount debugfs debugfs /sys/kernel/debug
+    chmod 0755 /sys/kernel/debug
+    # [CONV m95:init.mt6797.rc:43-52] atrace.rc's chmod fires too late on
+    # legacy-fstab devices; the node exists right after the mount above.
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+
+    # [CONV m95:init.m95.mem.rc:229-236] 3.18 dumps registers for every
+    # unknown syscall (statx etc. from A13 userspace); keep ENOSYS, drop dumps.
+    write /proc/sys/debug/exception-trace 0
+
+on init
+    # [CONV m95:init.mt6797.rc:55-59] Mali midgard r12 with the Nougat
+    # userspace: m95 (r12p0) measured ~100 GPU page faults / 8 s and black
+    # frames with the Skia-GL RenderEngine and 0 with the legacy GLES one.
+    # M6 has the same driver generation (CONFIG_MTK_GPU_VERSION="mali midgard
+    # r12p1", meizu_m6_a13_defconfig:201) — INFERENCE, see INSTALL.txt H-GFX2.
+    # A vendor build.prop entry for debug.* is dropped; an rc setprop is kept.
+    setprop debug.renderengine.backend gles
+
+    # [CONV m95:init.mt6797.rc:64-74] cameraserver / camera provider join
+    # the camera-daemon cpuset, which AOSP init.rc creates only under
+    # cpuctl/stune (los20 init.rc:191-204), not under cpuset. CPUs copied
+    # from the root set the way init.rc:335-337 does it (8 cores here).
+    mkdir /dev/cpuset/camera-daemon 0755 system system
+    copy /dev/cpuset/cpus /dev/cpuset/camera-daemon/cpus
+    copy /dev/cpuset/mems /dev/cpuset/camera-daemon/mems
+    chown system system /dev/cpuset/camera-daemon/tasks
+    chmod 0664 /dev/cpuset/camera-daemon/tasks
+
+    # [DEV stock:init.mt6755.rc:58-59]
+    chown root system /proc/lk_env
+    chmod 0660 /proc/lk_env
+
+on fs
+    # [DEV stock:init.mt6755.rc:99 "mount_all /fstab.mt6755"] — but from the
+    # INSTALLED copy: the ramdisk one is gone after switch_root (m95 lost /data
+    # and /cache exactly this way, [CONV m95:init.mt6797.rc:92-97]). /system and
+    # /vendor carry first_stage_mount and are already mounted; /protect_f,
+    # /protect_s, /nvdata are nofail (fstab.mt6755:96-98). Their mount points
+    # must exist in the read-only system-image root: BOARD_ROOT_EXTRA_FOLDERS,
+    # see INSTALL.txt — an rc mkdir cannot create them any more.
+    mount_all /vendor/etc/fstab.mt6755
+
+on post-fs
+    # [DEV stock:init.mt6755.rc:134-143]
+    chown system system /proc/bootprof
+    chmod 0664 /proc/bootprof
+    chown system system /protect_f
+    chmod 0770 /protect_f
+    chown system system /protect_s
+    chmod 0770 /protect_s
+    # [DEV stock:init.modem.rc:36-37] relabel NV mounts (freshly formatted
+    # ext4 comes up unlabeled) [CONV m95:init.mt6797.rc:99-106].
+    restorecon_recursive /protect_f
+    restorecon_recursive /protect_s
+
+on post-fs-data
+    # zram: /dev/block/zram0 zramsize=805306368 in fstab.mt6755:125; stock ran
+    # a zram of 912996 KiB (live:03-partitions); CONFIG_ZRAM=y
+    # (meizu_m6_a13_defconfig:177). A13 init.rc has no swapon_all of its own
+    # [CONV m95:init.m95.mem.rc:238-239].
+    swapon_all /vendor/etc/fstab.mt6755
+
+    # [DEV stock:init.mt6755.rc:639] thermal policy store (libmtcloader:
+    # /data/.tp/.settings) — kept here, not in the thermal file, so it exists
+    # even if that file is dropped.
+    mkdir /data/.tp 0775 system system
+
+on boot
+    # [CONV m95:init.mt6797.rc:138-140] fb blank control for the legacy fb path.
+    chown system graphics /sys/class/graphics/fb0/blank
+    chmod 0660 /sys/class/graphics/fb0/blank
+
+    # LEDs. lcd-backlight/brightness itself is chowned by AOSP init.rc:1155.
+    # [DEV stock:init.mt6755.rc:651, 669-682; lights.mt6750 writes .../trigger
+    # and mx-led (blob:lib64/hw/lights.mt6750.so)]
+    chmod 0664 /sys/class/leds/lcd-backlight/brightness
+    chown system system /sys/class/leds/lcd-backlight/trigger
+    chown system system /sys/class/leds/red/trigger
+    chown system system /sys/class/leds/green/trigger
+    chown system system /sys/class/leds/blue/trigger
+    chown system system /sys/class/leds/mx-led/brightness
+    chown system system /sys/class/leds/mx-led/blink
+    chmod 0664 /sys/class/leds/mx-led/brightness
+    chmod 0664 /sys/class/leds/mx-led/blink
+
+    # GED HAL knobs, for ged_srv (system) when it is switched on below.
+    # [DEV los16:init.mt6755.rc:966-975]
+    chown system system /sys/kernel/debug/ged/hal/total_gpu_freq_level_count
+    chmod 0660 /sys/kernel/debug/ged/hal/total_gpu_freq_level_count
+    chown system system /sys/kernel/debug/ged/hal/custom_boost_gpu_freq
+    chmod 0660 /sys/kernel/debug/ged/hal/custom_boost_gpu_freq
+    chown system system /sys/kernel/debug/ged/hal/custom_upbound_gpu_freq
+    chmod 0660 /sys/kernel/debug/ged/hal/custom_upbound_gpu_freq
+    chown system system /sys/kernel/debug/ged/hal/event_notify
+    chmod 0660 /sys/kernel/debug/ged/hal/event_notify
+    chown system system /sys/kernel/debug/ged/hal/fps_upper_bound
+    chmod 0660 /sys/kernel/debug/ged/hal/fps_upper_bound
+
+on property:sys.boot_completed=1
+    # [DEV stock:init.mt6755.rc:902-905] release the early-init CPU floor.
+    write /proc/ppm/policy/userlimit_min_cpu_freq "1 -1"
+    write /proc/ppm/policy/userlimit_min_cpu_core "1 -1"
+
+##############################
+# Display helpers. SurfaceFlinger, composer@2.1 and allocator@2.0 come from
+# their AOSP rc files (device.mk PRODUCT_PACKAGES); nothing to define here.
+##############################
+
+# Second-stage boot logo (the LK logo on this body is upside down,
+# vendor.prop:51-57). 32-bit blob; touches only boot_mode and
+# lcd-backlight/brightness (blob:bin/boot_logo_updater).
+# [DEV stock:init.mt6755.rc:851-853; ran in los16:init.mt6755.rc:1144-1146]
+service bootlogoupdater /vendor/bin/boot_logo_updater
+    class core
+    oneshot
+
+# MTK picture-quality / ambient-light-adaptive services and the GED GPU DVFS
+# daemon. Stock starts pq and aal at boot and ged_srv at boot_completed
+# (stock:init.mt6755.rc:898-911, 974-982). NOT started here, on purpose:
+#  - los16 kept all three off behind persist.forge.mtk_optional_services
+#    "until matching Flyme blobs are verified" (los16:init.mt6755.rc:1943-1949);
+#  - m95 notes that starting PQ early dropped the m681 display and gates it
+#    [CONV m95:init.mt6797.rc:219-250].
+# First boot therefore runs without them; each is one setprop away:
+#   setprop persist.vendor.meizu_m6.pq 1      (0 stops it)
+#   setprop persist.vendor.meizu_m6.aal 1
+#   setprop persist.vendor.meizu_m6.ged 1
+service pq /vendor/bin/pq
+    class main
+    user system
+    group system graphics
+    disabled
+
+service aal /vendor/bin/aal
+    class main
+    user system
+    group system graphics
+    disabled
+
+service ged_srv /vendor/bin/ged_srv
+    class core
+    user system
+    group system readproc
+    disabled
+
+on property:persist.vendor.meizu_m6.pq=1
+    start pq
+
+on property:persist.vendor.meizu_m6.pq=0
+    stop pq
+
+on property:persist.vendor.meizu_m6.aal=1
+    start aal
+
+on property:persist.vendor.meizu_m6.aal=0
+    stop aal
+
+on property:sys.boot_completed=1 && property:persist.vendor.meizu_m6.ged=1
+    start ged_srv
+
+on property:persist.vendor.meizu_m6.ged=0
+    stop ged_srv
+
+##############################
+# Power / battery
+##############################
+
+# SPM (sleep power manager) firmware loader; the pcm_*.bin images it pushes
+# through /dev/spm are in /vendor/firmware (vendor-blobs.mk). Without it the
+# SoC has no deep-idle/suspend firmware.
+# [DEV stock:init.project.rc:162-166, blob:bin/spm_loader "/dev/spm"]
+service spm_script /vendor/bin/spm_loader
+    class core
+    user root
+    group root
+    oneshot
+
+# MTK fuel-gauge daemon (32-bit; dlopens /vendor/lib/libfgauge.so,
+# blob:bin/fuelgauged). Stock runs it as root:root; los16 as system.
+# [DEV stock:init.mt6755.rc:1433-1442]
+service fuelgauged /vendor/bin/fuelgauged
+    class main
+    user root
+    group root
+
+service fuelgauged_nvram /vendor/bin/fuelgauged_nvram
+    class main
+    user root
+    group root
+    oneshot

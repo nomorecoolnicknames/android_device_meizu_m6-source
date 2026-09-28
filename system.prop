@@ -1,0 +1,31 @@
+# system.prop - Meizu M6 (meizu_m6 / M711), MT6750, LineageOS 20 (Android 13)
+#
+# Carried over ONLY where the effect is FACT-backed on this device, from the
+# LineageOS 16.0 tree that boots it today
+# (gunwest-import/m6rom16/rom-work/device/meizu/meizu_m6/system.prop).
+#
+# The ~60-key MTK modem block (ro.mtk_*, persist.radio.*, ro.boot.opt_*) from
+# that file is NOT copied: it was tuned for an Oreo/Pie MTK RIL that does not
+# exist on A13 (no ImsService, no IRadio HIDL from these Nougat blobs), and the
+# fleet already has one recorded incident of a radio-HAL claim that "gates
+# nothing" being wrong (M681_DAILY_DRIVER_STATUS.md:269-274). What is genuinely
+# needed and dual-SIM-specific lives in lineage_meizu_m6.mk.
+#
+# 2026-09-25 (Treble): everything the VENDOR side owns - density, RIL, hw
+# module suffixes, rotation, AEE - moved verbatim to vendor.prop, which lands in
+# /vendor/build.prop. `ro.treble.enabled=false` is gone: the build now writes
+# ro.treble.enabled=true itself (build/make/core/main.mk:187).
+
+ro.forge.meizu.expect_codename=meizu_m6
+
+# HWC. FACT (LOS16 system.prop:170-177): disable_hwc=1 + composition.type=gpu
+# made SurfaceFlinger composite every layer on the GPU and was the cause of
+# system-wide UI lag; HWC was re-enabled 2026-06-21 and the build stayed up.
+# Kept at 0 (= HWC enabled). If A13 bootloops or glitches the panel on first
+# boot, disable_hwc=1 + debug.composition.type=gpu is the documented fallback.
+debug.sf.disable_hwc=0
+
+# Hardware navigation keys ARE present on M6 (mBack), but the mBack key layout
+# is delivered by a vendor blob stack (goodixfingerprintd + gf-keys.kl) that this
+# tree does not ship yet, so the on-screen bar must stay available.
+qemu.hw.mainkeys=0

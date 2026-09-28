@@ -1,0 +1,8 @@
+# Mount points that BOARD_ROOT_EXTRA_FOLDERS creates in the system-image root
+# (BoardConfig.mk). Without a label e2fsdroid stops packing system.img with
+#   set_selinux_xattr: No such file or directory searching for label "/nvdata"
+# (FACT, m5c build 2026-09-17; device/meizu/m5c/sepolicy/vendor/file_contexts).
+# rootfs, like /config in the platform file_contexts.
+/nvdata             u:object_r:rootfs:s0
+/protect_f          u:object_r:rootfs:s0
+/protect_s          u:object_r:rootfs:s0

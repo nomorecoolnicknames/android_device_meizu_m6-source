@@ -1,0 +1,13 @@
+# Vendor blobs are never checked in here (rule: meizu-fleet/TREES.md §3.4).
+# This tree has no vendor/meizu/meizu_m6 makefile tree at all - see device.mk.
+*.so
+*.apk
+*.bin
+*.img
+*.ko
+*.dat
+*.fw
+# Treble (2026-09-25): the vendor-image blobs, copied by
+# meizu-fleet/tools/treble-import-blobs.py (see vendor-blobs.mk). Only the
+# generated makefile is versioned.
+/proprietary/

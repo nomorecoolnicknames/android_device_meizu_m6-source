@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  VINTF device manifest - Meizu M6 (meizu_m6 / M711), MT6750. FULL TREBLE
+  (branch lineage-20-treble, 2026-09-25; report
+  meizu-fleet/designs/TREBLE_M6_M6T_20260924.md).
+
+  Until 2026-09-24 this file declared health only and said "declaration of
+  intent" - the tree was non-Treble and nothing checked it. Now
+  PRODUCT_ENFORCE_VINTF_MANIFEST follows the forced PRODUCT_FULL_TREBLE, the
+  file is merged into /vendor/etc/vintf/manifest.xml and checkvintf runs
+  against it.
+
+  target-level="3": FACT (m95, BRINGUP_STATE.md 2026-09-17 00:41) Android 13
+  carries framework matrices 3..7 only; level 1 fails ota_from_target_files
+  with "Cannot find framework matrix at FCM version 1", level 4 and 5 fail on
+  gnss@1.0 being deprecated there; 3 passes. The same N-era HAL versions are
+  declared here, so the same level.
+
+  Every entry is a passthrough wrapper that device.mk installs, backed by the
+  blob named next to it. NONE has run on this handset under Android 13: each is
+  a HYPOTHESIS until a boot log shows the service registered.
+  HALs whose service installs its own VINTF fragment are deliberately NOT
+  listed - a second declaration is a conflict that rejects the whole manifest
+  (m95 18.1, vendor22): health@2.1-service, gatekeeper@1.0-service.software,
+  drm@1.4-service.clearkey.
+-->
+<manifest version="1.0" type="device" target-level="3">
+    <!-- audio.primary.mt6750.so (Android 7.0 audio.h -> vendor.prop
+         ro.vendor.audio.legacy_nougat_abi=1, hardware/interfaces branch
+         meizu-legacy-kernel a0acaebde). Audio and effect factories at the
+         same major version, as the A13 client requires (m95 manifest). -->
+    <hal format="hidl">
+        <name>android.hardware.audio</name>
+        <transport>hwbinder</transport>
+        <version>6.0</version>
+        <interface>
+            <name>IDevicesFactory</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>android.hardware.audio.effect</name>
+        <transport>hwbinder</transport>
+        <version>6.0</version>
+        <interface>
+            <name>IEffectsFactory</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- camera.mt6750.so via the legacy provider. -->
+    <hal format="hidl">
+        <name>android.hardware.camera.provider</name>
+        <transport>hwbinder</transport>
+        <version>2.4</version>
+        <interface>
+            <name>ICameraProvider</name>
+            <instance>legacy/0</instance>
+        </interface>
+    </hal>
+    <!-- configstore@1.1-service: base_vendor.mk, shipping level <= 29. -->
+    <hal format="hidl">
+        <name>android.hardware.configstore</name>
+        <transport>hwbinder</transport>
+        <version>1.1</version>
+        <interface>
+            <name>ISurfaceFlingerConfigs</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- gps.mt6750.so -->
+    <hal format="hidl">
+        <name>android.hardware.gnss</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IGnss</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- gralloc.mt6750.so -->
+    <hal format="hidl">
+        <name>android.hardware.graphics.allocator</name>
+        <transport>hwbinder</transport>
+        <version>2.0</version>
+        <interface>
+            <name>IAllocator</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- hwcomposer.mt6755.so (HWC1 through HWC2On1Adapter, as on m95). -->
+    <hal format="hidl">
+        <name>android.hardware.graphics.composer</name>
+        <transport>hwbinder</transport>
+        <version>2.1</version>
+        <interface>
+            <name>IComposer</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="hidl">
+        <name>android.hardware.graphics.mapper</name>
+        <transport arch="32+64">passthrough</transport>
+        <version>2.1</version>
+        <interface>
+            <name>IMapper</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- keystore.mt6750.so (MicroTrust TEE keymaster module). -->
+    <hal format="hidl">
+        <name>android.hardware.keymaster</name>
+        <transport>hwbinder</transport>
+        <version>3.0</version>
+        <interface>
+            <name>IKeymasterDevice</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- lights.mt6750.so -->
+    <hal format="hidl">
+        <name>android.hardware.light</name>
+        <transport>hwbinder</transport>
+        <version>2.0</version>
+        <interface>
+            <name>ILight</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- media.omx@1.0-service (base_vendor.mk) over the vendor's
+         libstagefrighthw.so / libMtkOmxCore.so. -->
+    <hal format="hidl">
+        <name>android.hardware.media.omx</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IOmx</name>
+            <instance>default</instance>
+        </interface>
+        <interface>
+            <name>IOmxStore</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- memtrack.mt6750.so -->
+    <hal format="hidl">
+        <name>android.hardware.memtrack</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IMemtrack</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- sensors.mt6750.so -->
+    <hal format="hidl">
+        <name>android.hardware.sensors</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>ISensors</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <!-- vibrator.default (hardware/libhardware/modules/vibrator: the
+         timed_output or leds/vibrator sysfs node; which one this kernel
+         exposes is not checked yet - HYPOTHESIS). -->
+    <hal format="hidl">
+        <name>android.hardware.vibrator</name>
+        <transport>hwbinder</transport>
+        <version>1.0</version>
+        <interface>
+            <name>IVibrator</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</manifest>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Framework overlay - Meizu M6 (meizu_m6 / M711).
+
+  DELIBERATELY ALMOST EMPTY, and that is the finding, not an omission.
+
+  The LineageOS 16.0 tree that boots this device has NO
+  overlay/frameworks/base/core/res overlay at all - its only overlay is
+  packages/apps/Camera2/res/values/config.xml (verified by listing
+  gunwest-import/m6rom16/rom-work/device/meizu/meizu_m6/overlay). So there are no
+  measured auto-brightness curves for this panel to carry over, the way m681 and
+  l681 have. Inventing curves for a panel whose identity is itself unresolved
+  (ili9881c on the live unit vs ili9881p on the dead one, see BoardConfig.mk)
+  would be exactly the cargo cult this fleet's rules forbid.
+
+  The two booleans below are safe device facts rather than tuning:
+    config_showNavigationBar - FACT: the LOS16 system.prop sets
+      qemu.hw.mainkeys=0 and the mBack hardware key is driven by a vendor
+      fingerprint blob stack (goodixfingerprintd + gf-keys.kl) that this tree
+      does not ship, so without the on-screen bar there is no way back.
+    config_hotswapCapable - FACT: dual SIM with a hot-swappable tray;
+      ro.telephony.sim.count=2 in the existing system.prop, and the stock fstab
+      declares sdcard1 as voldmanaged=auto on a shared tray.
+
+  Both names were checked against this tree's
+  frameworks/base/core/res/res/values/{config,symbols}.xml.
+-->
+<resources>
+    <bool name="config_showNavigationBar">true</bool>
+    <bool name="config_hotswapCapable">true</bool>
+</resources>

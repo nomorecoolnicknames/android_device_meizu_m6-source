@@ -1,0 +1,175 @@
+// Soong namespace for the meizu_m6 device tree.
+//
+// WHY (FACT, measured 2026-09-16 on this tree): every Android.bp without a
+// soong_namespace lands in the root namespace "." (build/soong/android/
+// namespace.go:193), soong_build always exports "." to kati (build/soong/cmd/
+// soong_build/main.go:106), and every module of an exported namespace gets
+// NamespaceExportedToMake = true (namespace.go:204), which is the only thing
+// androidmk.go:919 checks before writing the module's install rule into
+// installs-<product>.mk.  Soong has no TARGET_DEVICE guard (kati does), so a
+// module declared in ONE device tree gets install rules in EVERY product of
+// this workspace.  Measured before this file existed: a plain `m nothing`
+// for lineage_m5s carried 51 install-rule lines pointing at 27 modules from
+// device/meizu/m95 (installs-lineage_m5s.mk), two of which collided with real
+// m5s blobs (vendor/lib{,64}/libperfservicenative.so, from the `stem:` of
+// libm95shim_perfservice — a name-only grep does not find those).
+//
+// A namespace is only exported to Make for products that list it in
+// PRODUCT_SOONG_NAMESPACES (see device.mk of this tree); for every other
+// product the modules below simply do not reach Make.  Modules inside a
+// namespace can still depend on root-namespace modules: the root namespace is
+// searched last but it IS searched (namespace.go:288-292).
+soong_namespace {
+}
+
+// ---------------------------------------------------------------------------
+// Treble (2026-09-25): vendor-side stand-ins for libraries the N blobs NEED and
+// a vendor process cannot reach in /system. Installed by device.mk; evidence
+// per library in meizu-fleet/designs/TREBLE_M6_M6T_20260924.md §4.
+// ---------------------------------------------------------------------------
+
+cc_defaults {
+    name: "meizu_m6_shim_defaults",
+    vendor: true,
+    cflags: ["-Wno-unused-parameter"],
+}
+
+// /vendor/lib{,64}/libgui.so -> libgui_vendor.so. libgui is VNDK-core and
+// VNDK-private (build/make/target/product/gsi/current.txt), so the vendor
+// namespace has no link to it, and 48 blobs of this set NEED the plain name
+// libgui.so (hwcomposer.mt6755, libgui_ext, libaal, ged_srv, camera...). This
+// is m95's libgui_m95 (device/meizu/m95/shims/Android.bp) with the soname the
+// blobs actually carry: an empty library whose only content is DT_NEEDED on
+// libgui_vendor (frameworks/native/libs/gui/Android.bp, vendor: true). bionic
+// binds every library against the whole breadth-first local group, so the
+// consumers' symbols land in the one libgui_vendor of the process. The
+// vendor namespace searches /vendor/${LIB} first, so the name resolves here;
+// the sphal namespace sees it too, but no sphal library of this set NEEDs
+// libgui (treble-closure/sphal scan, report §4).
+cc_library_shared {
+    name: "libgui_fwd_meizu_m6",
+    defaults: ["meizu_m6_shim_defaults"],
+    stem: "libgui",
+    srcs: ["shims/stub.c"],
+    shared_libs: ["libgui_vendor"],
+}
+
+// /vendor/lib{,64}/libfs_mgr.so: N-ABI fstab reader. Copied verbatim from
+// device/meizu/m95/shims/fs_mgr.c (0420a7d). FACT (nm -D): libnvram.so of this
+// set, lib and lib64, imports exactly the three symbols that shim implements -
+// fs_mgr_read_fstab, fs_mgr_get_entry_for_mount_point, fs_mgr_free_fstab - and
+// A13 builds libfs_mgr only as a static library, so without this libnvram, and
+// with it every NVRAM consumer (97 ELFs in the audit), cannot load.
+cc_library_shared {
+    name: "libfs_mgr_shim_meizu_m6",
+    defaults: ["meizu_m6_shim_defaults"],
+    stem: "libfs_mgr",
+    srcs: ["shims/fs_mgr.c"],
+}
+
+// ---------------------------------------------------------------------------
+// N-ABI shims, ported VERBATIM from device/meizu/m95/shims (m95 lineage-20
+// 9af54dc, 2026-09-25): the meizu_m6 blob set is the same MediaTek Nougat
+// generation, and the unresolved symbols of its display/audio/RIL closures are
+// the ones these files already implement (model:
+// meizu-fleet/tools/treble-shim-wiring.py, report TREBLE_M6_M6T_20260924.md §4).
+// Only the module names change (namespace + one soname per device). Which blob
+// NEEDs which shim is written into the blob copies by patchelf at import time
+// (shims/wiring.txt -> treble-import-blobs.py --wiring), the way m95's
+// vendor-18.1/wire-shims.py did it. Per-file reasoning lives in the sources.
+// ---------------------------------------------------------------------------
+
+cc_library_shared {
+    name: "libmeizu_m6shim_gui",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/gui.cpp"],
+    shared_libs: ["liblog"],
+    allow_undefined_symbols: true,
+}
+
+// ui.cpp is m95's; graphicbuffer.cpp is this set's own: the N constructor
+// GraphicBuffer(w, h, format, uint32 usage) that libui_ext (hwcomposer's
+// closure) calls and A13 libui lacks. Its callers are byte-patched to allocate
+// the A13 object size (shims/bytepatch.txt); see the source.
+cc_library_shared {
+    name: "libmeizu_m6shim_ui",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: [
+        "shims/ui.cpp",
+        "shims/graphicbuffer.cpp",
+    ],
+    shared_libs: ["liblog", "libui"],
+    allow_undefined_symbols: true,
+}
+
+cc_library_shared {
+    name: "libmeizu_m6shim_sf",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/sf.cpp"],
+}
+
+cc_library_shared {
+    name: "libmeizu_m6shim_utils",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: [
+        "shims/utils.cpp",
+        "shims/propertymap.cpp",
+    ],
+    shared_libs: ["libutils"],
+    allow_undefined_symbols: true,
+}
+
+cc_library_shared {
+    name: "libmeizu_m6shim_audioutils",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/audioutils.cpp"],
+    allow_undefined_symbols: true,
+}
+
+// android::Region with the Nougat object layout for the Mali EGL driver: its
+// libui.so NEEDED is replaced by this library (wiring.txt). A13 Region is a
+// FatVector (~90 bytes); the N driver owns 32-byte objects and reads the
+// fields itself (region.cpp header; m95 HWUI SIGSEGV without it).
+cc_library_shared {
+    name: "libmeizu_m6shim_region",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/region.cpp"],
+    header_libs: ["libutils_headers", "liblog_headers"],
+    shared_libs: ["liblog"],
+    cflags: ["-fvisibility=hidden"],
+}
+
+cc_library_shared {
+    name: "libmeizu_m6shim_net",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/net.c"],
+}
+
+cc_library_shared {
+    name: "libmeizu_m6shim_power",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/power.cpp"],
+}
+
+// /vendor/lib{,64}/libnetd_client.so: mtk-ril / mtk-rilmd2 (lib, lib64) NEED
+// it by name and import protectFromVpn - the one symbol left in rild's closure
+// once librilutils/libril are in the image. System-only in A13, so rild could
+// not dlopen mtk-ril.so at all. protectFromVpn is the real fwmarkd round trip,
+// setNetworkForSocket forwards to the LLNDK android_setsocknetwork (m95's
+// lineage-20-volte3 shim); see the source.
+cc_library_shared {
+    name: "libmeizu_m6shim_netd_client",
+    defaults: ["meizu_m6_shim_defaults"],
+    stem: "libnetd_client",
+    srcs: ["shims/netd_client.c"],
+    shared_libs: ["libandroid_net"],
+}
+
+// SSLv3_{client,server}_method for mtk_agpsd (SUPL/AGPS) and libcurl-ss:
+// BoringSSL dropped SSLv3; m95's ssl.c verbatim (maps them to TLS_*_method).
+cc_library_shared {
+    name: "libmeizu_m6shim_ssl",
+    defaults: ["meizu_m6_shim_defaults"],
+    srcs: ["shims/ssl.c"],
+    shared_libs: ["libssl"],
+}

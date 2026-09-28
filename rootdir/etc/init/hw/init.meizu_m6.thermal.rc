@@ -1,0 +1,48 @@
+# init.meizu_m6.thermal.rc — MTK thermal daemons for the Meizu M6 on
+# Android 13. Installed as /vendor/etc/init/hw/init.meizu_m6.thermal.rc,
+# imported by init.mt6755.rc.
+#
+# DRAFT (treble-m6-m6t design lane, 2026-09-25). Not booted yet.
+# Tags as in init.mt6755.rc.
+#
+# Two layers, as on m95 [CONV m95:init.m95.thermal.rc:136-165]: the kernel
+# (mtktscpu & co., zones seen live: mtktscpu, mtktsbattery, mtktspmic,
+# mtktswmt, mtktsAP, mtktsbtsmdpa — live:80-thermal) protects the SoC on its
+# own; the daemons below apply the product policy.
+#
+# FACT, and a gap outside this file: thermal_manager loads the policy through
+# libmtcloader from /vendor/etc/.tp/thermal.conf and /vendor/etc/.tp/.%s
+# (strings of blob:bin/thermal_manager and lib/libmtcloader.so), and NEITHER
+# the Treble vendor-blobs.mk NOR the los16 blob list ships a single
+# etc/.tp file. Until the policy is imported, thermal_manager has nothing to
+# load and the device runs on kernel protection only (INSTALL.txt H-THM1).
+# /data/.tp (libmtcloader's /data/.tp/.settings) is created in
+# init.mt6755.rc, post-fs-data.
+#
+# Definitions: [DEV stock:init.mt6755.rc:1411-1431; live:00-getprop
+# init.svc.thermal/thermald/thermalloadalgod running, thermal_manager
+# stopped (= oneshot finished)]. Bitness: thermal, thermal_manager and
+# thermalloadalgod are 32-bit, thermald 64-bit (file(1) on the blobs).
+
+service thermalloadalgod /vendor/bin/thermalloadalgod
+    class main
+    user system
+    group system
+
+service thermal_manager /vendor/bin/thermal_manager
+    class main
+    user root
+    group system
+    oneshot
+
+# Modem-side TX-power throttling (opens the CCCI nodes, blob strings).
+service thermal /vendor/bin/thermal
+    class main
+    user system
+    group system
+
+# Registers with /proc/driver/thermal/clsd_pid and clmutt_tmd_pid.
+service thermald /vendor/bin/thermald
+    class main
+    user system
+    group system
