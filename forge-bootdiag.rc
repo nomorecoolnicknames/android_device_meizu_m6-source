@@ -1,0 +1,35 @@
+
+
+# Build Station: bootdiag cache capture
+on early-init
+    loglevel 7
+    write /proc/sys/kernel/printk "8 8 1 7"
+    write /dev/kmsg "Build Station bootdiag: early-init loglevel=7 printk=8"
+
+on post-fs
+    write /dev/kmsg "Build Station bootdiag: post-fs reached"
+
+on post-fs-data
+    mkdir /cache/bootdiag 0777 root root
+    chmod 0777 /cache/bootdiag
+    write /cache/bootdiag/phase-post-fs-data.txt "post-fs-data reached"
+    write /cache/bootdiag/phase-boot-completed.txt "sys.boot_completed not reached this boot"
+    write /dev/kmsg "Build Station bootdiag: post-fs-data cache collector start"
+    start forge-bdiag
+
+on boot
+    write /cache/bootdiag/phase-boot.txt "boot trigger reached"
+    write /dev/kmsg "Build Station bootdiag: boot trigger collector start"
+    start forge-bdiag
+
+on property:sys.boot_completed=1
+    write /cache/bootdiag/phase-boot-completed.txt "sys.boot_completed=1 reached"
+    start forge-bdiag
+
+service forge-bdiag /system/bin/sh /system/bin/forge-bootdiag.sh
+    class core
+    user root
+    group root system log shell
+    seclabel u:r:init:s0
+    disabled
+    oneshot

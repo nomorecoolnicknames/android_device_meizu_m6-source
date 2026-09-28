@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "source_commit": "05e05116bce51337c7d40f959f6ed89d3c04dd2b",
+  "device": "meizu_m6",
+  "android_version": 9,
+  "source_export_date": "2026-09-29",
+  "history": "Audited source snapshot; original private history preserved without rewriting.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "source_path": ".gitignore",
+      "sha256": "f78b258e67fed787cb15b92f420d0ed39d8138c61ce93a5c079c97cb819af382",
+      "bytes": 279,
+      "published_sha256": "f78b258e67fed787cb15b92f420d0ed39d8138c61ce93a5c079c97cb819af382"
+    },
+    {
+      "path": "Android.mk",
+      "source_path": "Android.mk",
+      "sha256": "2e851d365c6b355889da4c54b21b27e2ad50fc7966bf490170d0e3eeb3b77bad",
+      "bytes": 174,
+      "published_sha256": "2e851d365c6b355889da4c54b21b27e2ad50fc7966bf490170d0e3eeb3b77bad"
+    },
+    {
+      "path": "AndroidBoard.mk",
+      "source_path": "AndroidBoard.mk",
+      "sha256": "5eb1107a678d637bded580418938ed9220da6ec23b355d46c2edfa2c2cdba450",
+      "bytes": 618,
+      "published_sha256": "5eb1107a678d637bded580418938ed9220da6ec23b355d46c2edfa2c2cdba450"
+    },
+    {
+      "path": "AndroidProducts.mk",
+      "source_path": "AndroidProducts.mk",
+      "sha256": "0dded7e9bc28804f15203687906f5c920be33585ef902d5939715bf333eee056",
+      "bytes": 457,
+      "published_sha256": "0dded7e9bc28804f15203687906f5c920be33585ef902d5939715bf333eee056"
+    },
+    {
+      "path": "BLOBS.sha256",
+      "source_path": "BLOBS.sha256",
+      "sha256": "8639da6f091ef15f76ad9cf864103bf0d0eff42d0e9cbaa2abc813fa9d5e7f8e",
+      "bytes": 610,
+      "published_sha256": "8639da6f091ef15f76ad9cf864103bf0d0eff42d0e9cbaa2abc813fa9d5e7f8e"
+    },
+    {
+      "path": "BoardConfig.mk",
+      "source_path": "BoardConfig.mk",
+      "sha256": "fa570bef5b907290a3823a5affd7bc8040f333cf8de6c81d7c60f0118f406630",
+      "bytes": 10327,
+      "published_sha256": "3809a352ac52f8b1445fa010153588173d73a96525c71a16e6fbaedf9da8353f"
+    },
+    {
+      "path": "UPSTREAM_README.md",
+      "source_path": "README.md",
+      "sha256": "c7152433623d7f04d897574cf34d9036a931b41a90bff1acdcb1cc4952fddd76",
+      "bytes": 753,
+      "published_sha256": "c7152433623d7f04d897574cf34d9036a931b41a90bff1acdcb1cc4952fddd76"
+    },
+    {
+      "path": "bluetooth/bdroid_buildcfg.h",
+      "source_path": "bluetooth/bdroid_buildcfg.h",
+      "sha256": "5daa91e22f8b21c388fb8c764225e32d52cfe581b760fe31413687126a8319e7",
+      "bytes": 103,
+      "published_sha256": "5daa91e22f8b21c388fb8c764225e32d52cfe581b760fe31413687126a8319e7"
+    },
+    {
+      "path": "camera_compat/Android.mk",
+      "source_path": "camera_compat/Android.mk",
+      "sha256": "ece578fe1cf78b0f324963483c5d02ddd120f43dca5437f4c188d6f237700bb3",
+      "bytes": 2750,
+      "published_sha256": "ece578fe1cf78b0f324963483c5d02ddd120f43dca5437f4c188d6f237700bb3"
+    },
+    {
+      "path": "camera_compat/Camera1FrameProbe.java",
+      "source_path": "camera_compat/Camera1FrameProbe.java",
+      "sha256": "d55652724e0494f853820533bd2544e382ba3f3e6818435a269a378470fd86e9",
+      "bytes": 6388,
+      "published_sha256": "d55652724e0494f853820533bd2544e382ba3f3e6818435a269a378470fd86e9"
+    },
+    {
+      "path": "camera_compat/cam_cal_dump.c",
+      "source_path": "camera_compat/cam_cal_dump.c",
+      "sha256": "27bc260e50ce61cce8fcad2f2eeb6333a328c4cb1d5d13719423cec1cc43c2fe",
+      "bytes": 2144,
+      "published_sha256": "27bc260e50ce61cce8fcad2f2eeb6333a328c4cb1d5d13719423cec1cc43c2fe"
+    },
+    {
+      "path": "camera_compat/libm6_camera_glconsumer_compat.cpp",
+      "source_path": "camera_compat/libm6_camera_glconsumer_compat.cpp",
+      "sha256": "e21b740b032d03f2c5a702e9f2dd766112512b8405c90ead62a50e0da1858da5",
+      "bytes": 8148,
+      "published_sha256": "e21b740b032d03f2c5a702e9f2dd766112512b8405c90ead62a50e0da1858da5"
+    },
+    {
+      "path": "camera_compat/libm6_camera_tsf_bypass.cpp",
+      "source_path": "camera_compat/libm6_camera_tsf_bypass.cpp",
+      "sha256": "b588ba3ef66def2c58474a4a8a43924a0244d673320adc5c20ae12b52fd3b5b6",
+      "bytes": 1889,
+      "published_sha256": "b588ba3ef66def2c58474a4a8a43924a0244d673320adc5c20ae12b52fd3b5b6"
+    },
+    {
+      "path": "camera_compat/nvram_camera_seed.c",
+      "source_path": "camera_compat/nvram_camera_seed.c",
+      "sha256": "afcc97e5900c333fdffa36d4f23525bf6e692da121e4ad9b04a8463a176940cd",
+      "bytes": 6835,
+      "published_sha256": "afcc97e5900c333fdffa36d4f23525bf6e692da121e4ad9b04a8463a176940cd"
+    },
+    {
+      "path": "camera_compat/probe/AndroidManifest.xml",
+      "source_path": "camera_compat/probe/AndroidManifest.xml",
+      "sha256": "c46fbb50525069551cdebd94096e0b0ae8497628d2f3d58243b83746d5651b61",
+      "bytes": 897,
+      "published_sha256": "c46fbb50525069551cdebd94096e0b0ae8497628d2f3d58243b83746d5651b61"
+    },
+    {
+      "path": "camera_compat/probe/Camera1FrameProbeActivity.java",
+      "source_path": "camera_compat/probe/Camera1FrameProbeActivity.java",
+      "sha256": "5f4ec14da460897751f386fc552d6c2dd0081aceb51f3463d36de4adbf295b49",
+      "bytes": 7101,
+      "published_sha256": "5f4ec14da460897751f386fc552d6c2dd0081aceb51f3463d36de4adbf295b49"
+    },
+    {
+      "path": "cm.mk",
+      "source_path": "cm.mk",
+      "sha256": "3340490777ceb693880c8bb551bdb90b371a497a3b2959c726c3ae13b6691be8",
+      "bytes": 10868,
+      "published_sha256": "3340490777ceb693880c8bb551bdb90b371a497a3b2959c726c3ae13b6691be8"
+    },
+    {
+      "path": "cm_meizu_m6.mk",
+      "source_path": "cm_meizu_m6.mk",
+      "sha256": "22627458fe718bb44ecab09824e0a6568599852237a6c6ea99553562b89c96b7",
+      "bytes": 16468,
+      "published_sha256": "22627458fe718bb44ecab09824e0a6568599852237a6c6ea99553562b89c96b7"
+    },
+    {
+      "path": "device_meizu_m6.mk",
+      "source_path": "device_meizu_m6.mk",
+      "sha256": "cd03a3809e07ab6f06490de7cea8f578bc6a9374c321e3beaa3045cd3fb879ec",
+      "bytes": 29384,
+      "published_sha256": "72f7c08b3f06a9aab89b91f079d32debe488b0fd744595b05ec6ce7667a8e09c"
+    },
+    {
+      "path": "extract-files.sh",
+      "source_path": "extract-files.sh",
+      "sha256": "d8f1260a669d4aa54ef6a460d9342c97745ae4cbc711f14ead94a9aebeac5be4",
+      "bytes": 2286,
+      "published_sha256": "d8f1260a669d4aa54ef6a460d9342c97745ae4cbc711f14ead94a9aebeac5be4"
+    },
+    {
+      "path": "forge-bootdiag.rc",
+      "source_path": "forge-bootdiag.rc",
+      "sha256": "e270e19ac57c6202dfd7b7c8c686d6d5ad60216f4a78f3a6c48a9f41c6a1906b",
+      "bytes": 1109,
+      "published_sha256": "e270e19ac57c6202dfd7b7c8c686d6d5ad60216f4a78f3a6c48a9f41c6a1906b"
+    },
+    {
+      "path": "forge-bootdiag.sh",
+      "source_path": "forge-bootdiag.sh",
+      "sha256": "82ddc1bc67f81e8c8fac8208ec1c360d206c351cfd0e0113b9b5a1053330a924",
+      "bytes": 8025,
+      "published_sha256": "82ddc1bc67f81e8c8fac8208ec1c360d206c351cfd0e0113b9b5a1053330a924"
+    },
+    {
+      "path": "gf-keys.kl",
+      "source_path": "gf-keys.kl",
+      "sha256": "86127aabf7384ea3364b0fdba2a2a6869b7271c6ae830df44357077679ed40bc",
+      "bytes": 145,
+      "published_sha256": "86127aabf7384ea3364b0fdba2a2a6869b7271c6ae830df44357077679ed40bc"
+    },
+    {
+      "path": "gps.conf",
+      "source_path": "gps.conf",
+      "sha256": "bae63b97c276e9f2b425903015b26999c2724d59e63724a470cdb463de978fbc",
+      "bytes": 857,
+      "published_sha256": "bae63b97c276e9f2b425903015b26999c2724d59e63724a470cdb463de978fbc"
+    },
+    {
+      "path": "init.fingerprint.rc",
+      "source_path": "init.fingerprint.rc",
+      "sha256": "767320375736b0bffc27216c5b0057b055b909b6cad4e69d922bb862e5254e35",
+      "bytes": 520,
+      "published_sha256": "767320375736b0bffc27216c5b0057b055b909b6cad4e69d922bb862e5254e35"
+    },
+    {
+      "path": "ld.config.meizu_m6.txt",
+      "source_path": "ld.config.meizu_m6.txt",
+      "sha256": "4824f652680a1f1b98a5174c844ac869c7cdc6eb2850b9f25b1f7eeb884dd306",
+      "bytes": 3166,
+      "published_sha256": "4824f652680a1f1b98a5174c844ac869c7cdc6eb2850b9f25b1f7eeb884dd306"
+    },
+    {
+      "path": "lineage.mk",
+      "source_path": "lineage.mk",
+      "sha256": "c237b3e22a585c68d11cce9f375e94adc5757d48220d6bf7caec47ab1651a8c6",
+      "bytes": 6990,
+      "published_sha256": "c237b3e22a585c68d11cce9f375e94adc5757d48220d6bf7caec47ab1651a8c6"
+    },
+    {
+      "path": "lineage_meizu_m6.mk",
+      "source_path": "lineage_meizu_m6.mk",
+      "sha256": "a03876883ae84c5549b0587c9eb56d5935381495e6a33b83e987c604f37a16a4",
+      "bytes": 6641,
+      "published_sha256": "a03876883ae84c5549b0587c9eb56d5935381495e6a33b83e987c604f37a16a4"
+    },
+    {
+      "path": "m6-data-space-guard.sh",
+      "source_path": "m6-data-space-guard.sh",
+      "sha256": "0f4d8e995fb110ad49d9eec3d1f6639459961604aaaa9f076d799a08d58ded52",
+      "bytes": 2086,
+      "published_sha256": "0f4d8e995fb110ad49d9eec3d1f6639459961604aaaa9f076d799a08d58ded52"
+    },
+    {
+      "path": "manifest.xml",
+      "source_path": "manifest.xml",
+      "sha256": "a325c57678e9f249380aa7236614a06706f1905b1a7b6eef2e3a7365c9b3434d",
+      "bytes": 7084,
+      "published_sha256": "a325c57678e9f249380aa7236614a06706f1905b1a7b6eef2e3a7365c9b3434d"
+    },
+    {
+      "path": "mback/Android.mk",
+      "source_path": "mback/Android.mk",
+      "sha256": "ea42e68c3c918d1769e7918c5db02546bc272352765b3ac7cb2eef8e4e5b06b3",
+      "bytes": 253,
+      "published_sha256": "ea42e68c3c918d1769e7918c5db02546bc272352765b3ac7cb2eef8e4e5b06b3"
+    },
+    {
+      "path": "mback/Vendor_4642_Product_0001.kl",
+      "source_path": "mback/Vendor_4642_Product_0001.kl",
+      "sha256": "82bc3d1d4a589860b290417879cfe021dc07f789b2ca3fbded9ed71ea91274d4",
+      "bytes": 342,
+      "published_sha256": "82bc3d1d4a589860b290417879cfe021dc07f789b2ca3fbded9ed71ea91274d4"
+    },
+    {
+      "path": "mback/mbackd.c",
+      "source_path": "mback/mbackd.c",
+      "sha256": "34ebcec120890317b6895ce0a9f6214173a427a3eda34df9213bc39dbfb78c16",
+      "bytes": 8690,
+      "published_sha256": "34ebcec120890317b6895ce0a9f6214173a427a3eda34df9213bc39dbfb78c16"
+    },
+    {
+      "path": "mback/mbackd.rc",
+      "source_path": "mback/mbackd.rc",
+      "sha256": "6a8507b4ec1f0075588666006f6f7f72d89b3a67ecfb184cbdb7b6c1c8e0186e",
+      "bytes": 634,
+      "published_sha256": "6a8507b4ec1f0075588666006f6f7f72d89b3a67ecfb184cbdb7b6c1c8e0186e"
+    },
+    {
+      "path": "microtrust.rc",
+      "source_path": "microtrust.rc",
+      "sha256": "2cd367d784dd175a85db78883912637540f00a7a50c54b6b4603653c8f18cda5",
+      "bytes": 3375,
+      "published_sha256": "2cd367d784dd175a85db78883912637540f00a7a50c54b6b4603653c8f18cda5"
+    },
+    {
+      "path": "overlay/packages/apps/Camera2/res/values/config.xml",
+      "source_path": "overlay/packages/apps/Camera2/res/values/config.xml",
+      "sha256": "ea772dc585da7baa62cbfe23703e7016a4866516b11c378ee577e9f3b436aa93",
+      "bytes": 285,
+      "published_sha256": "ea772dc585da7baa62cbfe23703e7016a4866516b11c378ee577e9f3b436aa93"
+    },
+    {
+      "path": "proprietary-files-mtk.txt",
+      "source_path": "proprietary-files-mtk.txt",
+      "sha256": "e353d21bf4a281326157955bd3a161164d18617673daf4833c9955abe2f18af2",
+      "bytes": 23860,
+      "published_sha256": "e353d21bf4a281326157955bd3a161164d18617673daf4833c9955abe2f18af2"
+    },
+    {
+      "path": "proprietary-files.txt",
+      "source_path": "proprietary-files.txt",
+      "sha256": "c4cdd115f28260f8f7719b9e3e1142579ec596861badb52ca57a52675d34f663",
+      "bytes": 24915,
+      "published_sha256": "c4cdd115f28260f8f7719b9e3e1142579ec596861badb52ca57a52675d34f663"
+    },
+    {
+      "path": "releasetools.py",
+      "source_path": "releasetools.py",
+      "sha256": "0574b9156351f9ad8b40cb605e9e659fc97b81c44dcb16298c4f77d9b2288728",
+      "bytes": 3055,
+      "published_sha256": "0574b9156351f9ad8b40cb605e9e659fc97b81c44dcb16298c4f77d9b2288728"
+    },
+    {
+      "path": "rild-disabled.rc",
+      "source_path": "rild-disabled.rc",
+      "sha256": "a27239b0826f30487ec571a29665865c6414ced1448029b0efb79306a99fd80e",
+      "bytes": 201,
+      "published_sha256": "a27239b0826f30487ec571a29665865c6414ced1448029b0efb79306a99fd80e"
+    },
+    {
+      "path": "rild-mtk-hidl.rc",
+      "source_path": "rild-mtk-hidl.rc",
+      "sha256": "b0b87cebd396a1a591a6ff2a00cf0f6fb3848c274266aca4c7c7d53c3842f0e9",
+      "bytes": 135,
+      "published_sha256": "b0b87cebd396a1a591a6ff2a00cf0f6fb3848c274266aca4c7c7d53c3842f0e9"
+    },
+    {
+      "path": "setup-makefiles.sh",
+      "source_path": "setup-makefiles.sh",
+      "sha256": "9ea0edbfd8106e0acaf55653a7873c5129758373a92cd93797c9e1b063c90dda",
+      "bytes": 4995,
+      "published_sha256": "9ea0edbfd8106e0acaf55653a7873c5129758373a92cd93797c9e1b063c90dda"
+    },
+    {
+      "path": "shims/Android.mk",
+      "source_path": "shims/Android.mk",
+      "sha256": "d5bbea0fef7064d64196ab2e62105bc8869f8b1b025536c815fe3d3d6de86831",
+      "bytes": 1304,
+      "published_sha256": "d5bbea0fef7064d64196ab2e62105bc8869f8b1b025536c815fe3d3d6de86831"
+    },
+    {
+      "path": "shims/skia.cpp",
+      "source_path": "shims/skia.cpp",
+      "sha256": "9eeddad2d6bcbd11fb40bf745afbfe1ec2c73af44c5d47a9da8f158805002f41",
+      "bytes": 1403,
+      "published_sha256": "8c5ebd327e1052a5784b9c4784051b7dd771e51b5603527af22d0ac17ed5bfae"
+    },
+    {
+      "path": "system.prop",
+      "source_path": "system.prop",
+      "sha256": "0d8aea223e185c959a651fd7d945fdec0d55a3d0ce9d195bac9c69d617d18e19",
+      "bytes": 7138,
+      "published_sha256": "0d8aea223e185c959a651fd7d945fdec0d55a3d0ce9d195bac9c69d617d18e19"
+    },
+    {
+      "path": "vendorsetup.sh",
+      "source_path": "vendorsetup.sh",
+      "sha256": "ddc660580d6c3acb79c5ab6cc0b746e33f195b471e0071b09444365572afdd16",
+      "bytes": 80,
+      "published_sha256": "ddc660580d6c3acb79c5ab6cc0b746e33f195b471e0071b09444365572afdd16"
+    },
+    {
+      "path": "wifi/init.m6.wifi.rc",
+      "source_path": "wifi/init.m6.wifi.rc",
+      "sha256": "74cd22313f45a7fe3f852b06bbea202b8d3e7bb7871462933da0e6d7b2b8811d",
+      "bytes": 429,
+      "published_sha256": "74cd22313f45a7fe3f852b06bbea202b8d3e7bb7871462933da0e6d7b2b8811d"
+    },
+    {
+      "path": "wifi/wpa_supplicant.conf",
+      "source_path": "wifi/wpa_supplicant.conf",
+      "sha256": "a590bde9004ad58251d06418ac9ea25cc20bb449358d25f3f0e2e91780d1c439",
+      "bytes": 101,
+      "published_sha256": "a590bde9004ad58251d06418ac9ea25cc20bb449358d25f3f0e2e91780d1c439"
+    }
+  ],
+  "excluded": [
+    {
+      "path": ".forge-adaptation.json",
+      "reason": "private operational notes/tooling"
+    },
+    {
+      "path": "BUILDDT_SYNC_NOTE.txt",
+      "reason": "private operational notes/tooling"
+    },
+    {
+      "path": "camera_compat/libm6_camera_tsf_bypass.so",
+      "reason": "binary/prebuilt/compiled input excluded",
+      "sha256": "aa7647695c9999565422b39675d9488ee4be22f551573d878a76ef4eeaf9adb4",
+      "bytes": 4840
+    },
+    {
+      "path": "m6-flash-system-capture.sh",
+      "reason": "private operational notes/tooling"
+    },
+    {
+      "path": "prebuilt-kernel/Image.gz-dtb",
+      "reason": "binary/prebuilt/compiled input excluded",
+      "sha256": "e70854445d07a4063af52df08aa53a35ae5a92676521fa0de42fed9f17f3b8ca",
+      "bytes": 7740671
+    },
+    {
+      "path": "prebuilt-kernel/Image.gz-dtb.rot_hw_backup",
+      "reason": "binary/prebuilt/compiled input excluded",
+      "sha256": "8c2e89a9ef5bf5c794bb2f664b4c221f5456dab110f137655f8720136f3a4637",
+      "bytes": 7739020
+    },
+    {
+      "path": "prebuilt/kernel",
+      "reason": "binary/prebuilt/compiled input excluded",
+      "sha256": "a6139936f19762b61e4690240ed0d0e90be055cf1bf052fbcca6472e9b6b428d",
+      "bytes": 7897774
+    }
+  ],
+  "redactions": [
+    {
+      "path": "BoardConfig.mk",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "fa570bef5b907290a3823a5affd7bc8040f333cf8de6c81d7c60f0118f406630"
+    },
+    {
+      "path": "device_meizu_m6.mk",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "cd03a3809e07ab6f06490de7cea8f578bc6a9374c321e3beaa3045cd3fb879ec"
+    },
+    {
+      "path": "shims/skia.cpp",
+      "purpose": "Remove device serial identifiers from comments or evidence descriptions",
+      "source_sha256": "9eeddad2d6bcbd11fb40bf745afbfe1ec2c73af44c5d47a9da8f158805002f41"
+    }
+  ],
+  "binaries_published": false,
+  "complete_rom_build": false,
+  "runtime_validation": "not established by this publication"
+}

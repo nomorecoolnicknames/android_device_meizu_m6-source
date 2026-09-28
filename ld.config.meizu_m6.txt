@@ -1,0 +1,53 @@
+# Bionic loader config file — Meizu M6 (meizu_m6 / MT6750) override
+#
+# Base: system/core/rootdir/etc/ld.config.legacy.txt (PRODUCT_FULL_TREBLE=false,
+#       BOARD_VNDK_VERSION not set).
+#
+# WHY THIS OVERRIDE EXISTS (Build Station, keymaster ABI wall):
+#   fingerprint.default.so (Nougat blob) is dlopen'd by the fps_hal HIDL service
+#   (android.hardware.biometrics.fingerprint@2.0-service) from /vendor/bin/hw/.
+#   That process runs in the [vendor] ld.config namespace.  fingerprint.default.so
+#   NEEDs libkeymaster_messages.so and libkeymaster1.so; those carry a Nougat ABI
+#   (copy_size_and_data_from_buf mangled as ::UniquePtr, not keymaster::UniquePtr).
+#   Oreo's /system/lib64/libkeymaster_messages.so has the Oreo mangling → dlopen
+#   of fingerprint.default.so fails → FingerprintService "Failed to open HAL".
+#
+#   The Nougat libkeymaster_messages.so + libkeymaster1.so already live in
+#   /system/vendor/lib64/fp_a7/ (= /vendor/lib64/fp_a7/ via the /vendor symlink)
+#   for goodixfingerprintd (LD_LIBRARY_PATH trick works for /system/bin/ processes
+#   in the [legacy] namespace but NOT for hw_get_module() dlopen in [vendor]).
+#
+#   FIX: add /vendor/${LIB}/fp_a7 to the [vendor] namespace search.paths BEFORE
+#   /system/${LIB}, so libkeymaster_messages.so resolves to the Nougat copy first.
+#
+#   SAFETY: /system/bin/keystore and all other /system/bin/ processes use the
+#   [legacy] namespace (dir.legacy = /system) which does NOT include fp_a7 →
+#   Oreo keystore continues to use the Oreo libkeymaster_messages from /system/lib64.
+#   goodixfingerprintd (/system/bin/) is also in [legacy] and keeps its existing
+#   LD_LIBRARY_PATH=fp_a7 mechanism from microtrust.rc — no change needed there.
+
+# Processes from /vendor/bin/ run in the [vendor] namespace.
+# Processes from /system/ or /sbin/ run in the [legacy] namespace.
+dir.vendor = /vendor/bin/
+dir.vendor = /system/vendor/bin/
+dir.legacy = /system
+dir.legacy = /vendor
+dir.legacy = /sbin
+
+[vendor]
+# M6: fp_a7 prepended before /system/${LIB} so that the fps_hal process (and any
+# other vendor binary) loads Nougat libkeymaster_messages.so / libkeymaster1.so
+# before the Oreo copies in /system/lib64.  The rest of the search order is
+# identical to the upstream legacy config.
+namespace.default.isolated = false
+namespace.default.search.paths = /vendor/${LIB}/hw:/vendor/${LIB}/egl:/vendor/${LIB}:/vendor/${LIB}/fp_a7:/system/${LIB}
+namespace.default.asan.search.paths = /data/asan/vendor/${LIB}/hw:/vendor/${LIB}/hw:/data/asan/vendor/${LIB}/egl:/vendor/${LIB}/egl:/data/asan/vendor/${LIB}:/vendor/${LIB}:/vendor/${LIB}/fp_a7:/data/asan/system/${LIB}:/system/${LIB}
+
+[legacy]
+# Unchanged from upstream ld.config.legacy.txt.
+# /system/bin/keystore, /system/bin/goodixfingerprintd, and all other system
+# processes use this namespace — they do NOT see fp_a7 via linker search paths.
+# goodixfingerprintd gets Nougat keymaster via LD_LIBRARY_PATH in microtrust.rc.
+namespace.default.isolated = false
+namespace.default.search.paths = /system/${LIB}:/vendor/${LIB}
+namespace.default.asan.search.paths = /data/asan/system/${LIB}:/system/${LIB}:/data/asan/vendor/${LIB}:/vendor/${LIB}

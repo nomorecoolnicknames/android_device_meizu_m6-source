@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- M6 stock camera HAL is API1-only; Camera2 legacy shim returns error 100. -->
+    <bool name="config_use_capture_module">false</bool>
+    <bool name="config_use_camera2_api_through_portability_layer">false</bool>
+</resources>

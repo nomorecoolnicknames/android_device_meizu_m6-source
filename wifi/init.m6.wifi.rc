@@ -1,0 +1,8 @@
+# M6 WiFi: copy wpa_supplicant.conf to /data on first boot (after data wipe).
+# wpa_supplicant will not start if this file is absent.
+on post-fs-data
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    copy /system/etc/wifi/wpa_supplicant.conf /data/misc/wifi/wpa_supplicant.conf
+    chown wifi wifi /data/misc/wifi/wpa_supplicant.conf
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf

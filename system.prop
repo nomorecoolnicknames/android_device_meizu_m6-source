@@ -1,0 +1,204 @@
+#
+# from device/ginreen/Y15/system.prop
+#
+#
+# system.prop for Meizu M6 MT6750
+#
+
+# Stock M6 radio path. Capture 1779358816135 proves display/boot are stable on
+# the stock kernel; keep RIL enabled and use the stock MTK modem properties.
+rild.libpath=mtk-ril.so
+rild.libargs=-d /dev/ttyC0
+ro.telephony.sim.count=2
+persist.radio.default.sim=0
+persist.radio.multisim.config=dsds
+persist.gemini.sim_num=2
+ril.current.share_modem=2
+ril.telephony.mode=0
+ril.radiooff.poweroffMD=0
+ro.telephony.default_network=10,10
+telephony.lteOnCdmaDevice=1
+mtk.eccci.c2k=disabled
+ro.mtk_enable_md1=1
+ro.mtk_enable_md3=0
+ro.mtk_lte_support=1
+ro.mtk_c2k_support=0
+ro.mtk_rild_read_imsi=1
+ro.mtk_external_sim_support=1
+ro.mtk_external_sim_only_slots=0
+ro.mtk_protocol1_rat_config=C/Lf/Lt/W/T/G
+ro.mtk_world_phone_policy=0
+ro.mtk_md_world_mode_support=1
+ro.sim_refresh_reset_by_modem=1
+persist.radio.flashless.fsm=0
+persist.radio.flashless.fsm_cst=0
+persist.radio.flashless.fsm_rw=0
+persist.radio.fd.counter=150
+persist.radio.fd.off.counter=50
+persist.radio.fd.r8.counter=150
+persist.radio.fd.off.r8.counter=50
+persist.radio.mobile.data=0,0
+persist.radio.fourgOff=1
+persist.radio.mtk_dsbp_support=1
+persist.radio.mtk_ps2_rat=W/G
+# ro.boot.opt_c2k_lte_mode=0
+# ro.boot.opt_md1_support=11
+# ro.boot.opt_md3_support=0
+# ro.boot.opt_lte_support=1
+# ro.boot.opt_irat_support=1
+# ro.boot.opt_eccci_c2k=0
+# ro.boot.opt_using_default=1
+# ro.boot.opt_c2k_support=0
+
+
+# MTK, Infinity, 20090720 {
+wifi.interface=wlan0
+# MTK, Infinity, 20090720 }
+
+# MTK, mtk03034, 20101210 {
+ro.mediatek.wlan.wsc=1
+# MTK, mtk03034 20101210}
+# MTK, mtk03034, 20110318 {
+ro.mediatek.wlan.p2p=1
+# MTK, mtk03034 20110318}
+
+# MTK, mtk03034, 20101213 {
+mediatek.wlan.ctia=0
+# MTK, mtk03034 20101213}
+
+
+#
+wifi.tethering.interface=ap0
+#
+
+ro.opengles.version=196608
+
+wifi.direct.interface=p2p0
+
+# WiFi default regulatory country (2026-06-21). FACT: `dumpsys wifi` reported
+# "CountryCode was not initialized" → the connsys wlan driver had no regdomain →
+# WifiHAL GetChannelList returned err=-95 (NOT_SUPPORTED) for every band → wificond
+# "Failed to start scan because there is no available channel" → no scan, no networks.
+# WifiInjector.java reads ro.boot.wificountrycode as the OEM default country code.
+# Set RU (user region; 2.4GHz ch 1-13). Change per locale if scanning still misses APs.
+ro.boot.wificountrycode=RU
+
+dalvik.vm.heapgrowthlimit=256m
+dalvik.vm.heapsize=512m
+
+# USB MTP WHQL
+ro.sys.usb.mtp.whql.enable=0
+
+# Power off opt in IPO
+sys.ipo.pwrdncap=2
+
+
+ro.sys.usb.storage.type=mtp
+
+# USB BICR function
+ro.sys.usb.bicr=yes
+
+# USB Charge only function
+ro.sys.usb.charging.only=yes
+
+# audio
+ro.camera.sound.forced=0
+ro.audio.silent=0
+
+ro.zygote.preload.enable=0
+
+# temporary enables NAV bar (soft keys)
+
+# hardware keys are present; keep emulator qemu props out of target builds.
+
+
+ro.kernel.zio=38,108,105,16
+#ro.boot.selinux=disable
+
+#modify by zhouyacheng-wind at 20151214 begin
+ro.sf.lcd_density=320
+#modify by zhouyacheng-wind at 20151214 end
+
+#add by zhouyacheng-wind at 20151217 start
+ro.operator.optr=CUST
+#add by zhouyacheng-wind at 20151217 end
+
+#meizu mobile name
+ro.product.mobile.name=y15
+
+# performance
+ro.mtk_perf_simple_start_win=1
+ro.mtk_perf_fast_start_win=0
+ro.mtk_perf_response_time=1
+ro.mtk_low_band_tran_anim=1
+# add for CTA
+dalvik.vm.checkjni=false
+
+persist.sys.isUsbOtgEnabled=true
+
+ro.mtk_perfservice_support=1
+
+# Build Station display HAL guard: meizu_m6 is MT6750, common tree is MT6755 donor.
+# Force hw_get_module() to try stock MT6750 display HAL variants first.
+ro.hardware.gralloc=mt6750
+# M6/LOS16 hwc lane 2026-08-03: mt6755, not mt6750 — the only HWC module on
+# the image is hwcomposer.mt6755.so; hwcomposer.mt6750.so does not exist.
+# (Loading previously survived via the ro.hardware=mt6755 fallback that LK's
+# androidboot.hardware=mt6755 cmdline provides.)
+ro.hardware.hwcomposer=mt6755
+ro.hardware.audio.primary=mt6750
+# Stock MT6750 camera HAL is enabled for the next runtime pass.
+ro.hardware.camera=mt6750
+ro.hardware.gps=mt6750
+# Build Station 2026-06-22: keymaster=mt6750 RE-ENABLED WITH the microtrust.rc INIT_OK ordering gate.
+# Prior REJECTED attempt bootlooped because keymaster-3-0 (class early_hal) started BEFORE the TEE was
+# up (soter.teei.init=INIT_OK) -> keystore.mt6750.so could not register IKeystoreService -> system_server
+# NPE in KeyStore.contains(). FIX: android.hardware.keymaster@3.0-service.rc -> 'class hal' + 'disabled';
+# microtrust.rc starts keymaster-3-0 on soter.teei.init=INIT_OK (TEE ready first). /data is unencrypted
+# (ro.crypto.state=unsupported) so vold needs no early keymaster -> no decrypt deadlock.
+# ROOT CAUSE of fp-enroll stall (RE-traced 2026-06-22): software keystore left /dev/ut_keymaster unheld
+# -> Goodix TA HMAC fetch r=-3 -> gf_hal_common_pre_enroll silently returns challenge=0 -> enroll never
+# progresses. mt6750 keymaster holds ut_keymaster -> TA gets its key. Same TEE path gates mBack nav.
+ro.hardware.keystore=mt6750
+ro.mtk_soter_support=1
+ro.meizu_soter_support=1
+ro.hardware.gatekeeper=mt6750
+ro.hardware.lights=mt6750
+# Build Station: M6 sensors HAL isolated until HIDL passthrough implementation is present.
+ro.hardware.bluetooth=blueangel
+
+# Display composition: HWC ENABLED to fix system-wide UI lag (2026-06-21). FACT: with
+# disable_hwc=1 + composition.type=gpu, SurfaceFlinger composited EVERY layer on the
+# Mali-T860 GPU (dumpsys SurfaceFlinger: all layers GLES, FB_TARGET via HWC, SF ~43% CPU)
+# → jank across the whole UI. Enabling the MT6750 hardware composer offloads overlays.
+# RISK: HWC-on was unproven on MT6750 (old bring-up default disabled it). If this
+# bootloops or glitches the panel, revert to disable_hwc=1 + composition.type=gpu.
+debug.sf.disable_hwc=0
+# debug.composition.type=gpu   # REMOVED: was forcing GPU composition = the lag cause
+
+# First-boot isolation: fingerprint HAL disabled until Settings/UI are stable.
+# ro.hardware.fingerprint=default
+
+# Build Station diagnostics: keep MTK AEE/ipanic dumps enabled for expdb capture.
+persist.mtk.aee.aed=on
+
+# Quiet known-stock chatty daemons; live validation on 2026-06-18 showed these
+# tags obey liblog filtering without stopping Wi-Fi, WMT, or thermal services.
+log.tag.wmt_launcher=W
+log.tag.thermal_repeater=W
+
+# Build Station runtime property guard.
+ro.sf.hwrotation=0
+
+# 2026-08-03: SurfaceFlinger reported "[sf DISABLE_TRIPLE_BUFFERING ...]" on
+# device, i.e. layer triple buffering off. That is not a build flag in this tree
+# (nothing consumes TARGET_DISABLE_TRIPLE_BUFFERING) -- it is this property,
+# read at SurfaceFlinger.cpp:349 with a default of "1" when unset. With triple
+# buffering off, a layer only gets two buffers, so the producer stalls waiting
+# for the consumer and scrolling/animation stutters on this 60 Hz panel with a
+# single Mali-T860. Turning it on is the standard remedy and costs one extra
+# buffer per layer.
+# Paired with silencing the per-frame DSI tracing in the kernel; the two can be
+# told apart because the kernel tracing has a live toggle
+# (/sys/module/ddp_dsi/parameters/m6_dsi_diag_enabled) and this one does not.
+ro.sf.disable_triple_buffer=0

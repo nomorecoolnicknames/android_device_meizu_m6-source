@@ -1,0 +1,3 @@
+# Build Station: intentionally empty during M6 runtime bring-up.
+# The AOSP rild service crashes against the stock MTK RIL blob; radio is isolated
+# until the MTK ril-daemon service graph is repaired.

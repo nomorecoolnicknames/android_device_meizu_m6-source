@@ -1,0 +1,16 @@
+on post-fs-data
+    mkdir /data/sunwave 0770 system system
+    mkdir /data/sunwave/fingerprint 0770 system system
+    mkdir /data/system/sunwave 0770 system system
+    chown system system /dev/sunwave_fp
+    chmod 0660 /dev/sunwave_fp
+    restorecon /dev/sunwave_fp
+    restorecon_recursive /data/sunwave
+    restorecon_recursive /data/system/sunwave
+
+service fingerprintd /system/bin/fingerprintd
+    class late_start
+    disabled
+    user system
+    group system input
+    writepid /dev/cpuset/system-background/tasks

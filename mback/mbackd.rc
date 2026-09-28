@@ -1,0 +1,12 @@
+# mBack duration daemon (2026-08-03): tap=Back, click=Home, hold=Recents from
+# the single mtk-kpd capacitive button. Grabs /dev/input/event1 and re-injects
+# through uinput ("mbackd-keys", Vendor_4642_Product_0001.kl); volume/power are
+# forwarded unchanged. If the daemon dies, the native mapping (vendor
+# Generic.kl 102->HOME) takes back over on the next event.
+# seclabel: device runs permissive; same explicit-label pattern as
+# forge-bootdiag.rc. Needs a real domain before any enforcing build.
+service mbackd /system/bin/mbackd
+    class late_start
+    user system
+    group system input net_bt_admin
+    seclabel u:r:init:s0

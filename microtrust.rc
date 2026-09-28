@@ -1,0 +1,87 @@
+# === M6 MicroTrust TEEI + Goodix FP launcher (post-fs-data ordering + FP gating) ===
+#
+# IMPORTANT (FACT, this LOS device): /vendor is a symlink to /system/vendor, so
+# this vendor init script is IMPORTED by init AFTER the `on fs` trigger has
+# already fired -> an `on fs` block here never runs. `on post-fs-data` DOES run
+# (verified: soter.encrypt.state reaches OK). So all node perms + the teei_daemon
+# start live in post-fs-data, ordered: perms -> /data/thh tree -> start teei.
+#
+# WHY IT MATTERS (FACT, kernel teei tz_driver):
+#  * init_teei_framework() is ONE-SHOT per boot (teei_flags guard,
+#    teei_client_main.c:783); cold-boot soter load (boot_stage1) must succeed or
+#    teei_config_flag never sets (:743) and fp_open() times out 20000ms
+#    (teei_fp/fp_func.c:52). emmcrpmb0 (RPMB) must be system-readable before teei
+#    boots soter; the full TA set lives in /system/vendor/thh.
+#  * Goodix FP gated on soter.teei.init=INIT_OK: a premature /dev/goodix_fp open
+#    fails -> HAL sends GF_IOC_REMOVE -> node destroyed until reboot
+#    (gf_spi_tee.c:877).
+
+on post-fs-data
+    chmod 0666 /dev/teei_client
+    chown system system /dev/teei_client
+    chmod 0660 /dev/teei_config
+    chown system system /dev/teei_config
+    chmod 0660 /dev/tz_vfs
+    chown system system /dev/tz_vfs
+    chmod 0666 /dev/teei_fp
+    chown system system /dev/teei_fp
+    chmod 0660 /dev/emmcrpmb0
+    chown system system /dev/emmcrpmb0
+    chmod 0666 /dev/ut_keymaster
+    chown system system /dev/ut_keymaster
+    mkdir /data/thh 0755 system system
+    mkdir /data/thh/system 0755 system system
+    mkdir /data/thh/tee_00 0755 system system
+    mkdir /data/thh/tee_01 0755 system system
+    mkdir /data/thh/tee_02 0755 system system
+    mkdir /data/thh/tee_03 0755 system system
+    mkdir /data/thh/tee_04 0755 system system
+    mkdir /data/thh/tee_05 0755 system system
+    mkdir /data/thh/tee_06 0755 system system
+    mkdir /data/thh/tee_07 0755 system system
+    mkdir /data/thh/tee_08 0755 system system
+    mkdir /data/thh/tee_09 0755 system system
+    mkdir /data/thh/tee_0A 0755 system system
+    mkdir /data/thh/tee_0B 0755 system system
+    mkdir /data/thh/tee_0C 0755 system system
+    mkdir /data/thh/tee_0D 0755 system system
+    mkdir /data/thh/tee_0E 0755 system system
+    mkdir /data/thh/tee_0F 0755 system system
+    mkdir /data/thh/tee 0755 system system
+    mkdir /data/thh/tee/tas 0755 system system
+    restorecon_recursive /data/thh
+    setprop soter.encrypt.state OK
+    write /proc/bootprof "M6FP start teei_daemon (post-fs-data)"
+    start teei_daemon
+
+on boot
+    chmod 0660 /dev/goodix_fp
+    chown system system /dev/goodix_fp
+
+service teei_daemon /system/vendor/bin/teei_daemon
+    class core
+    user system
+    group system
+    disabled
+
+service ifaad /system/vendor/bin/ifaad
+    class core
+    user system
+    group system
+    disabled
+
+service goodixfp /system/bin/goodixfingerprintd
+    class hal
+    user system
+    group system input
+    setenv LD_LIBRARY_PATH /vendor/lib64/fp_a7:/system/lib64:/system/lib64/hw
+    # run in the proper HAL domain, not init:s0 (started from this on-property
+    # trigger; no file_contexts domain_trans for the custom goodix binary).
+    seclabel u:r:hal_fingerprint_default:s0
+    disabled
+
+on property:soter.teei.init=INIT_OK
+    start ifaad
+    start goodixfp
+    start fps_hal
+    start keymaster-3-0

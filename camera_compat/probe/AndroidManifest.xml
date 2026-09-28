@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.androidforge.m6.camera.probe">
+
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="22" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:label="M6 Camera Probe"
+        android:theme="@android:style/Theme.NoDisplay"
+        android:allowBackup="false"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".Camera1FrameProbeActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

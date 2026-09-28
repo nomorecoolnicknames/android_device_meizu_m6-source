@@ -1,0 +1,10 @@
+# mbackd virtual key device (uinput "mbackd-keys", bus VIRTUAL 4642:0001).
+# BACK/HOME/APP_SWITCH are injected by mbackd from mBack button durations;
+# volume/power arrive here forwarded from the grabbed mtk-kpd.
+key 102   HOME
+key 114   VOLUME_DOWN
+key 115   VOLUME_UP
+key 116   POWER WAKE
+key 158   BACK
+key 172   HOME
+key 580   APP_SWITCH

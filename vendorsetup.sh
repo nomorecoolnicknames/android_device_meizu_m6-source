@@ -1,0 +1,2 @@
+add_lunch_combo lineage_meizu_m6-userdebug
+add_lunch_combo lineage_meizu_m6-eng
