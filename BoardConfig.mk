@@ -124,7 +124,13 @@ ifeq ($(M6_KERNEL_FROM_SOURCE),true)
 TARGET_KERNEL_SOURCE := kernel/meizu/meizu_m6/kernel-3.18
 TARGET_KERNEL_CONFIG := meizu_m6_defconfig
 TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := /srv/forge/toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+ifeq ($(strip $(M6_KERNEL_CROSS_COMPILE_PREFIX)),)
+$(error Set M6_KERNEL_CROSS_COMPILE_PREFIX to the absolute AArch64 GCC 4.9 prefix for M6_KERNEL_FROM_SOURCE=true)
+endif
+ifeq ($(filter /%,$(strip $(M6_KERNEL_CROSS_COMPILE_PREFIX))),)
+$(error M6_KERNEL_CROSS_COMPILE_PREFIX must be an absolute AArch64 GCC 4.9 prefix)
+endif
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := $(strip $(M6_KERNEL_CROSS_COMPILE_PREFIX))
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 # Clear prebuilt vars so kernel.mk takes the FULL_KERNEL_BUILD path
 TARGET_PREBUILT_KERNEL :=
