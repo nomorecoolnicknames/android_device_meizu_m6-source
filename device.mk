@@ -27,13 +27,7 @@ PRODUCT_SOONG_NAMESPACES += \
 # No vendor/meizu/meizu_m6 tree exists in this workspace (see the blob note
 # further down); add it here together with that tree.
 
-# ---------------------------------------------------------------------------
-# Screen density
-#
-# FACT: ro.sf.lcd_density=320 in the stock Flyme build.prop
-#   (/srv/forge/android/meizu_m6/stock-flyme-7.1.2.0G/META-INF/build.prop) and
-#   read back live off unit REDACTED_UNIT. 720x1280 => xhdpi.
-# ---------------------------------------------------------------------------
+# 720x1280 display, density 320 (xhdpi).
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := xhdpi
 
@@ -146,50 +140,8 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml
 
-# ---------------------------------------------------------------------------
-# Vendor blobs - in the real /vendor image (Treble, 2026-09-25).
-#
-# Until 2026-09-24 this block explained why NO blobs were imported (a non-Treble
-# tree with no vendor partition, fleet rule TREES.md §3.4). With a real /vendor
-# the blobs ARE the vendor image, so they are imported - into this tree, not a
-# separate vendor/meizu/meizu_m6 (proprietary/ is in .gitignore; only the
-# generated makefile is versioned).
-#
-# vendor-blobs.mk is GENERATED from the list of the LOS 16.0 tree that boots the
-# live unit (735 pairs) plus the 5 files that tree declared as modules (libnvram
-# 64, librilmtk, mtk-ril). Every destination - system/vendor/<x> AND system/<x>
-# - becomes $(TARGET_COPY_OUT_VENDOR)/<x>, as in vendor/meizu/m95/m95-vendor.mk:
-# FACT (report §4): the stock /system/lib* files in the list are HAL closure
-# (camera.mt6750 -> libmeizucamera, libcam.* -> libcam.common.meizu/arcsoft/
-# mpbase; teei_daemon, keystore/gatekeeper.mt6750 -> libimsg_log; the whole
-# goodix FP stack), which a vendor process can only reach inside /vendor.
-# Excluded: system/lib/libcurl.so - libcurl is VNDK-core, a /vendor copy would
-# shadow the VNDK one in every vendor process (m95 lesson 5, libbinder); and
-# vendor/lib{,64}/mediadrm/lib{drmclearkey,mockdrmcrypto}plugin.so - AOSP's own
-# reference plugins, which A13 builds to the same path and which a copy rule
-# would silently beat (fleet blob audit 2026-09-16, commit 27f353f; the first
-# `m nothing` of this branch warned "overriding commands" on exactly these).
-# Hard-coded paths: every /system/vendor/... string in the blobs keeps working,
-# because the A13 system image carries system/vendor -> /vendor (FACT,
-# out-m95 system/vendor symlink); no blob hard-codes a /system/lib* path of a
-# file that moved (treble-closure.py scan).
-#
-# Regenerate (from /srv/forge/android):
-#   R=gunwest-import/m6rom16/rom-work
-#   python3 meizu-fleet/tools/treble-import-blobs.py \
-#     --src-mk $R/vendor/meizu/meizu_m6/meizu_m6-vendor-blobs.mk --src-root $R \
-#     --src-prop $R/vendor/meizu/meizu_m6/proprietary \
-#     --device-path device/meizu/meizu_m6 --out-mk <this dir>/vendor-blobs.mk \
-#     --copy-to los20/device/meizu/meizu_m6/proprietary \
-#     --extra vendor/lib64/libnvram.so,vendor/lib/librilmtk.so,vendor/lib64/librilmtk.so,vendor/lib/mtk-ril.so,vendor/lib64/mtk-ril.so \
-#     --exclude libcurl.so,libdrmclearkeyplugin.so,libmockdrmcryptoplugin.so,init.mal.rc,init.wod.rc \
-#     --wiring <this dir>/shims/wiring.txt --bytepatch <this dir>/shims/bytepatch.txt \
-#     --prune --name vendor-blobs.mk
-# The copies in proprietary/ are therefore NOT the stock files: 129 carry
-# patched DT_NEEDED (shims/wiring.txt, model meizu-fleet/tools/
-# treble-shim-wiring.py) and libui_ext.so (lib, lib64) a patched operator new
-# size (shims/bytepatch.txt). SHA256SUMS holds the hashes of the patched copies.
-# ---------------------------------------------------------------------------
+# Install device-specific Nougat HALs and firmware in /vendor.
+# Exclude libcurl and AOSP reference DRM plugins to avoid shadowing source-built/VNDK libraries.
 $(call inherit-product, $(LOCAL_PATH)/vendor-blobs.mk)
 
 # ---------------------------------------------------------------------------

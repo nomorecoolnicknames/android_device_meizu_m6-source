@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  VINTF device manifest - Meizu M6 (meizu_m6 / M711), MT6750. FULL TREBLE
-  (branch lineage-20-treble, 2026-09-25; report
-  meizu-fleet/designs/TREBLE_M6_M6T_20260924.md).
-
-  Until 2026-09-24 this file declared health only and said "declaration of
-  intent" - the tree was non-Treble and nothing checked it. Now
-  PRODUCT_ENFORCE_VINTF_MANIFEST follows the forced PRODUCT_FULL_TREBLE, the
-  file is merged into /vendor/etc/vintf/manifest.xml and checkvintf runs
-  against it.
-
-  target-level="3": FACT (m95, BRINGUP_STATE.md 2026-09-17 00:41) Android 13
-  carries framework matrices 3..7 only; level 1 fails ota_from_target_files
-  with "Cannot find framework matrix at FCM version 1", level 4 and 5 fail on
-  gnss@1.0 being deprecated there; 3 passes. The same N-era HAL versions are
-  declared here, so the same level.
-
-  Every entry is a passthrough wrapper that device.mk installs, backed by the
-  blob named next to it. NONE has run on this handset under Android 13: each is
-  a HYPOTHESIS until a boot log shows the service registered.
-  HALs whose service installs its own VINTF fragment are deliberately NOT
-  listed - a second declaration is a conflict that rejects the whole manifest
-  (m95 18.1, vendor22): health@2.1-service, gatekeeper@1.0-service.software,
-  drm@1.4-service.clearkey.
+  Meizu M6 VINTF manifest. Avoid duplicate HAL declarations supplied by module fragments.
 -->
+
 <manifest version="1.0" type="device" target-level="3">
     <!-- audio.primary.mt6750.so (Android 7.0 audio.h -> vendor.prop
          ro.vendor.audio.legacy_nougat_abi=1, hardware/interfaces branch
