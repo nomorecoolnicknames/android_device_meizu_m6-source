@@ -1,6 +1,6 @@
 // libm6_camera_tsf_bypass.so — AndroidForge M6 camera bring-up shim (LD_PRELOAD).
 //
-// Root cause (BRINGUP_STATE.md 2026-06-13 КАМЕРА): camera TSF/LSC calibration
+// Root cause: camera TSF/LSC calibration
 // NVRAM is absent on this port (CAMERA_TSF missing, readRamVersion all 0). The MTK
 // ISP online lens-shading TSF runs with a NULL calibration table and NULL-derefs,
 // killing the camera HAL host (mediaserver) ~1.5s into preview.

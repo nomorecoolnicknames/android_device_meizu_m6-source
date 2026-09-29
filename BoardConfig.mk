@@ -156,13 +156,7 @@ PRODUCT_COPY_FILES += \
     $(M6_DISPLAY_KERNEL_PREBUILT):kernel
 endif
 
-# Build Station: SurfaceFlinger vsync phase offsets — REMOVED 2026-06-21.
-# These were the prime bootloop suspect (handoff M6-HANDOFF-TODO.md §2.4) and were never
-# isolated. We are now enabling HWC (system.prop debug.sf.disable_hwc=0) to fix UI lag; to
-# keep ONE variable per CLAUDE.md §3 we test HWC with DEFAULT vsync (no offset) first.
-# If HWC boots cleanly but judders, re-introduce the -8000000 offsets below:
-#   SF_VSYNC_EVENT_PHASE_OFFSET_NS := -8000000
-#   VSYNC_EVENT_PHASE_OFFSET_NS := -8000000
+# Keep default SurfaceFlinger vsync offsets until the selected HWC/kernel combination is validated.
 
 # Nothing was loading the WiFi driver. frameworks/opt/net/wifi/libwifi_hal builds
 # wifi_hal_common.cpp with -DWIFI_DRIVER_STATE_CTRL_PARAM only when the board

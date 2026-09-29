@@ -4,8 +4,6 @@
 *.rej
 *~
 
-# Proprietary firmware, kept out of git per the blob gate (CLAUDE.md 5).
-# Identity is tracked instead: see BLOBS.sha256, regenerate with
-#   find radio prebuilt/stock-* -type f | sort | xargs sha256sum > BLOBS.sha256
+# Proprietary firmware is excluded from Git. BLOBS.sha256 records input identity.
 radio/
 prebuilt/stock-7.1.2.0G/
