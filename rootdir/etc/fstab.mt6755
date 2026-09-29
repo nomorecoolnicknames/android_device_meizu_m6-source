@@ -1,51 +1,5 @@
-# fstab.mt6755 - Meizu M6 (meizu_m6 / M711), MT6750, LineageOS 20 / Android 13
-#
-# WHY THE FILE IS CALLED fstab.mt6755 ON A "mt6750" PHONE
-#   FACT: ro.hardware = mt6755 on this device (live capture, unit REDACTED_UNIT,
-#   meizu_m6/captures/20260620-121905-m6-STOCK-flyme-harvest-REDACTED_UNIT/
-#   10-getprop.txt), and init looks the fstab up by ro.hardware. The existing
-#   trees name it the same way. MT6750 is the down-binned MT6755 bin; the BSP is
-#   mt6755 (meizu-fleet/factbase/mt6755_family.md §7).
-#
-# BLOCK-DEVICE MAP - DERIVATION, because these numbers are NOT m681's.
-#   FACT: the stock scatter /srv/forge/android/meizu_m6/stock-flyme-7.1.2.0G/
-#   scatter.txt lists, in order, the eMMC user-area partitions:
-#     1 recovery, 2 para, 3 custom, 4 expdb, 5 frp, 6 nvdata, 7 proinfo,
-#     8 devinfo, 9 metadata, 10 protect1, 11 protect2, 12 seccfg,
-#     13 oemkeystore, 14 md1img, 15 md1dsp, 16 md1arm7, 17 md3img, 18 nvram,
-#     19 lk, 20 lk2, 21 boot, 22 logo, 23 tee1, 24 tee2, 25 secro,
-#     26 keystore, 27 rstinfo, 28 system, 29 cache, 30 userdata
-#   (preloader and pgpt are not user-area partitions; flashinfo/sgpt are the
-#   tail markers).
-#   FACT that validates the whole derivation: position 21 is `boot`, and boot is
-#   independently MEASURED as mmcblk0p21 on the live unit REDACTED_UNIT
-#   (factbase §5.1, "boot=mmcblk0p21 16 МиБ"). One measured anchor landing
-#   exactly where the ordering predicts it makes the remaining assignments
-#   INFERENCE of a very strong kind - but they are still inference, and
-#   `ls -l /dev/block/platform/mtk-msdc.0/*/by-name/` on the device settles it
-#   in one command. Do that before writing any flash script against these.
-#
-#   DIFFERENT FROM m681. m681 is p22 boot / p29 system / p30 cache / p31
-#   userdata; M6 is p21 / p28 / p29 / p30, because m681's scatter has no
-#   `devinfo`/`metadata`/`oemkeystore`/`keystore`/`rstinfo` in the same places.
-#   Copying the m681 fstab here would mount `keystore` as /system.
-#
-# WHY RAW NODES AND NOT by-name
-#   The shipping LOS 16.0 fstab uses
-#   /dev/block/platform/mtk-msdc.0/11230000.msdc0/by-name/*, and those links DO
-#   exist on the 3.18.140 kernel - that fstab is what mounts /system on the
-#   booting build today. They are kept below as commented alternatives. Raw nodes
-#   are the default because this tree is a placeholder for a future 4.19 kernel
-#   whose by-name behaviour is unknown, and because m681's 4.4 has no by-name
-#   links at all (factbase:69).
-#   Watch out for one more thing: the LOS 15.1 tree's fstab points at
-#   11240000.msdc1 (the SD slot controller), not 11230000.msdc0, and the LOS 16.0
-#   tree keeps the old one as fstab.mt6755.bak-msdc1. msdc0 is the eMMC.
-#
-# A13 first-stage init: entries flagged `first_stage_mount` are mounted before
-# switch_root; /system must be one of them (system/core/init/first_stage_mount.cpp:505-525).
-#
-# <src>                    <mnt_point>  <type>  <mnt_flags and options>                                           <fs_mgr_flags>
+# M6 reports hardware=mt6755 despite its MT6750 marketing SoC name.
+# First-stage entries require resolvable by-name nodes before switch_root; later entries retain their board mapping.
 
 # FIRST-STAGE ENTRIES ARE by-name, NOT RAW - and this is not taste (2026-09-25).
 #   First-stage init waits for every first_stage_mount device by comparing
